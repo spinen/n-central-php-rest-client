@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is the "dist(ribution)" phpunit.xml.dist file.  It sets the defaults that are then over written by any files in
+    phpunit.xml, which is then over wrote by flags passed in via the command line.  The plan is that this file is to be
+    used by ci to do the full suit of tests, and a developer can copy this file to phpunit.xml to trim down some of the
+    options.
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    backupGlobals="false"
+    backupStaticProperties="false"
+    bootstrap="vendor/autoload.php"
+    cacheDirectory=".phpunit.cache"
+    colors="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
+>
+  <coverage>
+    <report>
+      <clover outputFile="build/phpunit/logs/clover.xml"/>
+      <html outputDirectory="./build/phpunit/coverage" lowUpperBound="35" highLowerBound="70"/>
+      <text outputFile="php://stdout" showUncoveredFiles="false" showOnlySummary="true"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Feature">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <!-- <env name="VARIABLE" value="value"/> -->
+  </php>
+  <logging>
+    <junit outputFile="./build/phpunit/logs/junit.xml"/>
+  </logging>
+  <source>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+    <exclude>
+      <directory>./src/Contracts</directory>
+      <directory>./src/Exceptions</directory>
+      <directory>./src/Providers</directory>
+    </exclude>
+  </source>
+</phpunit>

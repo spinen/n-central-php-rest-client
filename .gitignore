@@ -1,0 +1,8 @@
+/.phpunit.cache
+/build
+/vendor
+.env
+.phpunit.result.cache
+composer.lock
+phpunit.xml
+tasks.md
