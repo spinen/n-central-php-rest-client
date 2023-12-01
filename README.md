@@ -1,11 +1,11 @@
-# SPINEN's Ncentral PHP Client
+# SPINEN's N-central PHP Client
 
 [![Latest Stable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/stable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
 [![Latest Unstable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/unstable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
 [![Total Downloads](https://poser.pugx.org/spinen/n-central-php-rest-client/downloads)](https://packagist.org/packages/spinen/n-central-php-rest-client)
 [![License](https://poser.pugx.org/spinen/n-central-php-rest-client/license)](https://packagist.org/packages/spinen/n-central-php-rest-client)
 
-PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review Ncentral's API docs to get a feel for what this package can do, as we are just wrapping their API.  We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
+PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review N-central's API docs to get a feel for what this package can do, as we are just wrapping their API.  We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
 
 We solely use [Laravel](https://www.laravel.com) for our applications, so this package is written with Laravel in mind. We have tried to make it work outside of Laravel. If there is a request from the community to split this package into 2 parts, then we will consider doing that work.
 
@@ -41,7 +41,7 @@ We solely use [Laravel](https://www.laravel.com) for our applications, so this p
 
 ## Installation
 
-Install Ncentral PHP Package via Composer:
+Install N-central PHP Package via Composer:
 
 ```bash
 $ composer require spinen/n-central-php-rest-client
@@ -95,13 +95,13 @@ $ composer require spinen/n-central-php-rest-client
     php artisan vendor:publish --tag=ncentral-migrations
     ```
 
-    You'll need the migration to set the Ncentral API token on your `User` model.
+    You'll need the migration to set the N-central API token on your `User` model.
 
 ## Generic PHP Setup
 
-1. You need to build up an array of configs to pass into the Ncentral object.  You review the `ncentral.php` file in the `configs` directory.  All of the properties are documented in the file.
+1. You need to build up an array of configs to pass into the N-central object.  You review the `ncentral.php` file in the `configs` directory.  All of the properties are documented in the file.
 
-2. Depending on your needs, you can either work with the Ncentral client or the Builder
+2. Depending on your needs, you can either work with the N-central client or the Builder
 
     #### To get a `Spinen\Ncentral\Api\Client` instance for Client Credentials...
 
@@ -134,7 +134,7 @@ $ composer require spinen/n-central-php-rest-client
 
 ## Authentication
 
-Ncentral uses a JWT token for a user that is limited to only API calls.  This prevents ths account from being able to log directly into the application.  To obtain the "N-central User-API Token (JWT)", visit the N-central UI. Then navigate to Administration → User Management → Users → Click on user → API Access → GENERATE JSON WEB TOKEN.
+N-central uses a JWT token for a user that is limited to only API calls.  This prevents ths account from being able to log directly into the application.  To obtain the "N-central User-API Token (JWT)", visit the N-central UI. Then navigate to Administration → User Management → Users → Click on user → API Access → GENERATE JSON WEB TOKEN.
 
 ## Usage
 
@@ -154,7 +154,7 @@ Ncentral uses a JWT token for a user that is limited to only API calls.  This pr
 
 * `refreshToken()` - Refresh a token
 
-* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an [API call to Ncentral](https://ncentralservicedesk.com/apidoc/info) to `$path` with the `$data` using the JWT for the logged in user.
+* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an [API call to N-central](https://ncentralservicedesk.com/apidoc/info) to `$path` with the `$data` using the JWT for the logged in user.
 
 * `requestToken()` - Request a token
 
@@ -162,21 +162,21 @@ Ncentral uses a JWT token for a user that is limited to only API calls.  This pr
 
 * `setDebug(bool $debug)` - Set Guzzle to debug
 
-* `setToken(Token|string $token)` - Set the token for the Ncentral API
+* `setToken(Token|string $token)` - Set the token for the N-central API
 
-* `uri(?string $path = null, ?string $url = null)` - Generate a full uri for the path to the Ncentral API.
+* `uri(?string $path = null, ?string $url = null)` - Generate a full uri for the path to the N-central API.
 
 * `validToken()` - Is the token valid & if provided a scope, is the token approved for the scope
 
 ### Using the Client
 
-The Client is meant to emulate [Laravel's models with Eloquent](https://laravel.com/docs/master/eloquent#retrieving-models). When working with Ncentral resources, you can access properties and relationships [just like you would in Laravel](https://laravel.com/docs/master/eloquent-relationships#querying-relations).
+The Client is meant to emulate [Laravel's models with Eloquent](https://laravel.com/docs/master/eloquent#retrieving-models). When working with N-central resources, you can access properties and relationships [just like you would in Laravel](https://laravel.com/docs/master/eloquent-relationships#querying-relations).
 
 #### Models
 
-The API responses are cast into models with the properties cast into the types as defined in the [Ncentral API documentation](https://ncentralservicedesk.com/apidoc/info).  You can review the models in the `src/` folder.  There is a property named `casts` on each model that instructs the Client on how to cast the properties from the API response.  If the `casts` property is empty, then the properties are not defined in the API docs, so an array is returned.
+The API responses are cast into models with the properties cast into the types as defined in the [N-central API documentation](https://ncentralservicedesk.com/apidoc/info).  You can review the models in the `src/` folder.  There is a property named `casts` on each model that instructs the Client on how to cast the properties from the API response.  If the `casts` property is empty, then the properties are not defined in the API docs, so an array is returned.
 
-> NOTE: The documented properties on the models are likely to get stale as Ncentral is in active development
+> NOTE: The documented properties on the models are likely to get stale as N-central is in active development
 
 ```php
 > $builder->customers->first()
