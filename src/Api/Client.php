@@ -2,11 +2,16 @@
 
 namespace Spinen\Ncentral\Api;
 
+use Exception;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\ClientConfigurationException;
+use Spinen\Ncentral\Exceptions\ResourceNotFoundException;
 use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Version\Version;
 
@@ -73,6 +78,33 @@ class Client
     }
 
     /**
+     * Process exception
+     *
+     * @throws GuzzleException
+     * @throws RuntimeException
+     * @throws ApiException
+     */
+    protected function processException(GuzzleException $e): void
+    {
+        if (!is_a($e, RequestException::class)) {
+            throw $e;
+        }
+
+        /** @var RequestException $e */
+
+        $body = $e->getResponse()->getBody()->getContents();
+
+        $results = json_decode($body, true);
+
+        throw new ApiException(
+            body: $body,
+            code: $results['status'],
+            message: $results['message'],
+            previous: $e,
+        );
+    }
+
+    /**
      * Shortcut to 'POST' request
      *
      * @throws GuzzleException
@@ -123,10 +155,7 @@ class Client
                     ->getContents(),
             );
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
@@ -165,10 +194,7 @@ class Client
 
             return $this->token;
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
@@ -204,10 +230,7 @@ class Client
 
             return $this->token;
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
