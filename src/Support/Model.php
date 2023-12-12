@@ -150,7 +150,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Model constructor.
      */
-    public function __construct(?array $attributes = [], Model $parentModel = null)
+    public function __construct(?array $attributes = [], ?Model $parentModel = null)
     {
         // All dates from API comes as epoch with milliseconds
         $this->dateFormat = 'Uv';

@@ -15,7 +15,7 @@ class ApiException extends RuntimeException
         string $message,
         int $code,
         ?Throwable $previous = null,
-        string $body = null,
+        ?string $body = null,
     ) {
         parent::__construct(message: $message, code: $code, previous: $previous);
 

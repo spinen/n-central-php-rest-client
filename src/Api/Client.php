@@ -6,12 +6,10 @@ use Exception;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\ClientConfigurationException;
-use Spinen\Ncentral\Exceptions\ResourceNotFoundException;
 use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Version\Version;
 
@@ -80,18 +78,17 @@ class Client
     /**
      * Process exception
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws RuntimeException
-     * @throws ApiException
      */
     protected function processException(GuzzleException $e): void
     {
-        if (!is_a($e, RequestException::class)) {
+        if (! is_a($e, RequestException::class)) {
             throw $e;
         }
 
         /** @var RequestException $e */
-
         $body = $e->getResponse()->getBody()->getContents();
 
         $results = json_decode($body, true);
@@ -310,7 +307,7 @@ class Client
      * in the configs, but if a url is passed in as a second parameter then it is used.
      * If no url is found it will use the hard-coded v2 Ncentral API URL.
      */
-    public function uri(string $path = null, string $url = null): string
+    public function uri(?string $path = null, ?string $url = null): string
     {
         if ($path && Str::startsWith($path, 'http')) {
             return $path;
