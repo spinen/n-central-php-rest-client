@@ -115,7 +115,7 @@ class Client
                             'Content-Type' => 'application/json',
                             'User-Agent' => 'SPINEN/'.$this->getVersion(),
                         ],
-                        // 'body' => empty($data) ? null : json_encode($data),
+                        'body' => empty($data) ? null : json_encode($data),
                     ],
                     uri: $this->uri($path),
                 )
