@@ -194,7 +194,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function __set($key, $value)
     {
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             throw new ModelReadonlyException();
         }
 
@@ -309,7 +309,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     // public function delete(): bool
     // {
     //     // TODO: Make sure that the model supports being deleted
-    //     if ($this->readonlyModel) {
+    //     if ($this->getReadonlyModel()) {
     //         return false;
     //     }
 
@@ -441,6 +441,14 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         }
 
         return $path;
+    }
+
+    /**
+     * Does the model allow updates?
+     */
+    public function getReadonlyModel(): bool
+    {
+        return $this->readonlyModel ?? false;
     }
 
     /**
@@ -609,7 +617,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function offsetSet($offset, $value): void
     {
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             throw new ModelReadonlyException();
         }
 
@@ -676,8 +684,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function save(): bool
     {
-        // TODO: Make sure that the model supports being saved
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             return false;
         }
 
