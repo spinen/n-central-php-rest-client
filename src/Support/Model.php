@@ -703,7 +703,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             }
 
             $response = $this->getClient()
-                ->post($this->getPath(), [$this->toArray()]);
+                ->post($this->getPath(), $this->toArray());
 
             $this->exists = true;
 
