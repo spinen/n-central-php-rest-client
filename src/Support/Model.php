@@ -609,6 +609,18 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     }
 
     /**
+     * Peel of the wrapping property if it exist.
+     *
+     * @throws InvalidRelationshipException
+     */
+    public function peelWrapperPropertyIfNeeded(array $properties): array
+    {
+        return array_key_exists($this->getResponseKey(), $properties)
+            ? $properties[$this->getResponseKey()]
+            : $properties;
+    }
+
+    /**
      * Laravel allows control of accessing missing attributes, so we just return false
      *
      * @return bool

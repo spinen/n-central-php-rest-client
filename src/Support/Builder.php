@@ -151,7 +151,7 @@ class Builder
         $pageSize = $response['pageSize'] ?? null;
 
         // Peel off the key if exist
-        $response = $this->peelWrapperPropertyIfNeeded(Arr::wrap($response));
+        $response = $this->getModel()->peelWrapperPropertyIfNeeded(Arr::wrap($response));
 
         // Convert to a collection of filtered objects casted to the class
         return (new Collection((array_values($response) === $response) ? $response : [$response]))
@@ -331,18 +331,6 @@ class Builder
     {
         return $this->unless($size, fn (self $b): self => $b->where('paginate', false))
             ->when($size, fn (self $b): self => $b->where('paginate', true)->where('pageSize', (int) $size));
-    }
-
-    /**
-     * Peel of the wrapping property if it exist.
-     *
-     * @throws InvalidRelationshipException
-     */
-    protected function peelWrapperPropertyIfNeeded(array $properties): array
-    {
-        return array_key_exists($this->getModel()->getResponseKey(), $properties)
-            ? $properties[$this->getModel()->getResponseKey()]
-            : $properties;
     }
 
     /**
