@@ -2,6 +2,8 @@
 
 namespace Spinen\Ncentral;
 
+use Spinen\Ncentral\Exceptions\NoClientException;
+use Spinen\Ncentral\Support\Builder;
 use Spinen\Ncentral\Support\Model;
 
 /**
@@ -31,7 +33,7 @@ class ScheduledTask extends Model
         'credential' => [
             'type' => 'LocalSystem',
             'username' => null,
-            'password' => null
+            'password' => null,
         ],
         'taskType' => 'AutomationPolicy',
     ];
