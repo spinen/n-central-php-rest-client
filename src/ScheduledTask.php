@@ -63,6 +63,18 @@ class ScheduledTask extends Model
     protected string $primaryKey = 'taskId';
 
     /**
+     * Accessor to get the details
+     *
+     * @throws NoClientException
+     */
+    public function getDetailsAttribute(): DetailedScheduledTask
+    {
+        return (new Builder())->setClient($this->getClient())
+            ->detailedScheduledTasks()
+            ->find($this->taskId);
+    }
+
+    /**
      * Any thing to add to the end of the path
      */
     public function getExtra(): ?string
