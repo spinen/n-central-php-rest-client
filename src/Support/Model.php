@@ -710,7 +710,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             $this->wasRecentlyCreated = true;
 
             // Reset the model with the results as we get back the full model
-            $this->setRawAttributes($response, true);
+            $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
 
             return true;
         } catch (RuntimeException $e) {
