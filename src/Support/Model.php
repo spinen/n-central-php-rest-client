@@ -61,6 +61,11 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     public bool $exists = false;
 
     /**
+     * Extra path to add to end of API endpoint.
+     */
+    protected string $extra;
+
+    /**
      * Indicates if the IDs are auto-incrementing.
      */
     public bool $incrementing = false;
@@ -344,6 +349,14 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     }
 
     /**
+     * Any thing to add to the end of the path
+     */
+    public function getExtra(): ?string
+    {
+        return $this->extra ?? null;
+    }
+
+    /**
      * Get the value indicating whether the IDs are incrementing.
      */
     public function getIncrementing(): bool
@@ -409,6 +422,9 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         if ($this->exist && $this->getKey()) {
             $path .= '/'.$this->getKey();
         }
+
+        // Use the supplied extra or check if the model has an extra property
+        $extra ??= $this->getExtra();
 
         // Stick any extra things on the end
         if (! is_null($extra)) {
@@ -707,7 +723,18 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Set the readonly
      *
-     * @param  bool  $readonly
+     * @return $this
+     */
+    public function setExtra($extra = null): self
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * Set the readonly
+     *
      * @return $this
      */
     public function setReadonly($readonly = true): self
