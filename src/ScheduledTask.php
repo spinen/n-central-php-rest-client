@@ -68,7 +68,7 @@ class ScheduledTask extends Model
     public function getExtra(): ?string
     {
         // N-able has create route different than get route
-        return $this->exists ? null : '/direct';
+        return $this->taskId ? null : '/direct';
     }
 
     /**
