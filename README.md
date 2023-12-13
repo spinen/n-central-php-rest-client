@@ -1,3 +1,5 @@
+> NOTE: This is VERY early.  This is changing as N-central updates their API & as we get a better understanding of the API.  There are broken tests & some missing code, but we will firm this up over the next few weeks.
+
 # SPINEN's N-central PHP Client
 
 [![Latest Stable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/stable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
