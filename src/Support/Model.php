@@ -9,19 +9,22 @@ use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Concerns\HasAttributes;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
+use Illuminate\Database\Eloquent\InvalidCastException;
 use Illuminate\Database\Eloquent\JsonEncodingException;
+use Illuminate\Database\Eloquent\MissingAttributeException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 use JsonSerializable;
 use LogicException;
+use RuntimeException;
 use Spinen\Ncentral\Concerns\HasClient;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\ModelReadonlyException;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Ncentral\Exceptions\UnableToSaveException;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\ChildOf;
@@ -59,6 +62,11 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      * Indicates if the model exists.
      */
     public bool $exists = false;
+
+    /**
+     * Extra path to add to end of API endpoint.
+     */
+    protected string $extra;
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -150,7 +158,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Model constructor.
      */
-    public function __construct(?array $attributes = [], Model $parentModel = null)
+    public function __construct(?array $attributes = [], ?Model $parentModel = null)
     {
         // All dates from API comes as epoch with milliseconds
         $this->dateFormat = 'Uv';
@@ -189,7 +197,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function __set($key, $value)
     {
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             throw new ModelReadonlyException();
         }
 
@@ -297,14 +305,16 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Delete the model from Ncentral
      *
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
      */
     // TODO: Enable this once they add endpoints that support delete
     // public function delete(): bool
     // {
     //     // TODO: Make sure that the model supports being deleted
-    //     if ($this->readonlyModel) {
+    //     if ($this->getReadonlyModel()) {
     //         return false;
     //     }
 
@@ -341,6 +351,14 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             ...$this->defaultWheres,
             ...$query,
         ];
+    }
+
+    /**
+     * Any thing to add to the end of the path
+     */
+    public function getExtra(): ?string
+    {
+        return $this->extra ?? null;
     }
 
     /**
@@ -405,10 +423,12 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         $path = rtrim($this->path, '/');
 
         // If have an id, then put it on the end
-        // NOTE: Ncentral treats creates & updates the same, so only on existing
         if ($this->exist && $this->getKey()) {
             $path .= '/'.$this->getKey();
         }
+
+        // Use the supplied extra or check if the model has an extra property
+        $extra ??= $this->getExtra();
 
         // Stick any extra things on the end
         if (! is_null($extra)) {
@@ -425,6 +445,14 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         }
 
         return $path;
+    }
+
+    /**
+     * Does the model allow updates?
+     */
+    public function getReadonlyModel(): bool
+    {
+        return $this->readonlyModel ?? false;
     }
 
     /**
@@ -593,7 +621,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function offsetSet($offset, $value): void
     {
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             throw new ModelReadonlyException();
         }
 
@@ -606,6 +634,18 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     public function offsetUnset($offset): void
     {
         unset($this->attributes[$offset], $this->relations[$offset]);
+    }
+
+    /**
+     * Peel of the wrapping property if it exist.
+     *
+     * @throws InvalidRelationshipException
+     */
+    public function peelWrapperPropertyIfNeeded(array $properties): array
+    {
+        return array_key_exists($this->getResponseKey(), $properties)
+            ? $properties[$this->getResponseKey()]
+            : $properties;
     }
 
     /**
@@ -643,13 +683,16 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Save the model in Ncentral
      *
+     * @throws ApiException
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function save(): bool
     {
-        // TODO: Make sure that the model supports being saved
-        if ($this->readonlyModel) {
+        if ($this->getReadonlyModel()) {
             return false;
         }
 
@@ -659,18 +702,18 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             }
 
             $response = $this->getClient()
-                ->post($this->getPath(), [$this->toArray()]);
+                ->post($this->getPath(), $this->toArray());
 
             $this->exists = true;
 
             $this->wasRecentlyCreated = true;
 
             // Reset the model with the results as we get back the full model
-            $this->setRawAttributes($response, true);
+            $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
 
             return true;
-        } catch (GuzzleException $e) {
-            // TODO: Do something with the error
+        } catch (RuntimeException $e) {
+            // TODO: Should we do something with the error?
 
             return false;
         }
@@ -679,8 +722,12 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Save the model in Ncentral, but raise error if fail
      *
+     * @throws ApiException
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      * @throws UnableToSaveException
      */
     public function saveOrFail(): bool
@@ -695,7 +742,18 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Set the readonly
      *
-     * @param  bool  $readonly
+     * @return $this
+     */
+    public function setExtra($extra = null): self
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * Set the readonly
+     *
      * @return $this
      */
     public function setReadonly($readonly = true): self

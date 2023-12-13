@@ -6,17 +6,19 @@ use BadMethodCallException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as LaravelCollection;
-use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
+use RuntimeException;
 use Spinen\Ncentral\Concerns\HasClient;
 use Spinen\Ncentral\Customer;
+use Spinen\Ncentral\DetailedScheduledTask;
 use Spinen\Ncentral\Device;
 use Spinen\Ncentral\DeviceTask;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Ncentral\Health;
+use Spinen\Ncentral\ScheduledTask;
 use Spinen\Ncentral\ServerInfo;
 
 /**
@@ -58,9 +60,11 @@ class Builder
      */
     protected $rootModels = [
         'customers' => Customer::class,
+        'detailedScheduledTasks' => DetailedScheduledTask::class,
         'devices' => Device::class,
         'deviceTasks' => DeviceTask::class,
         'health' => Health::class,
+        'scheduledTasks' => ScheduledTask::class,
         'serverInfo' => ServerInfo::class,
     ];
 
@@ -72,9 +76,13 @@ class Builder
     /**
      * Magic method to make builders for root models
      *
+     * @throws ApiException
      * @throws BadMethodCallException
+     * @throws GuzzleException
+     * @throws InvalidRelationshipException
      * @throws ModelNotFoundException
      * @throws NoClientException
+     * @throws RuntimeException
      */
     public function __call(string $name, array $arguments)
     {
@@ -88,11 +96,12 @@ class Builder
     /**
      * Magic method to make builders appears as properties
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws ModelNotFoundException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function __get(string $name): Collection|Model|null
     {
@@ -131,12 +140,13 @@ class Builder
     /**
      * Get Collection of class instances that match query
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
-    public function get(array|string $properties = ['*'], string $extra = null): Collection|Model
+    public function get(array|string $properties = ['*'], ?string $extra = null): Collection|Model
     {
         $properties = Arr::wrap($properties);
 
@@ -152,7 +162,7 @@ class Builder
         $pageSize = $response['pageSize'] ?? null;
 
         // Peel off the key if exist
-        $response = $this->peelWrapperPropertyIfNeeded(Arr::wrap($response));
+        $response = $this->getModel()->peelWrapperPropertyIfNeeded(Arr::wrap($response));
 
         // Convert to a collection of filtered objects casted to the class
         return (new Collection((array_values($response) === $response) ? $response : [$response]))
@@ -169,7 +179,7 @@ class Builder
             ->setLinks($links)
             ->setPagination(count: $count, page: $page, pages: $pages, pageSize: $pageSize)
             // If never a collection, only return the first
-            ->unless($this->getModel()->collection, fn(Collection $c): Model => $c->first());
+            ->unless($this->getModel()->collection, fn (Collection $c): Model => $c->first());
     }
 
     /**
@@ -195,22 +205,23 @@ class Builder
      *
      * @throws InvalidRelationshipException
      */
-    public function getPath(string $extra = null): ?string
+    public function getPath(?string $extra = null): ?string
     {
         $w = (array) $this->wheres;
         $id = Arr::pull($w, $this->getModel()->getKeyName());
 
         return $this->getModel()
-            ->getPath($extra.(is_null($id) ? null : '/'.$id), $w);
+            ->getPath($extra.(is_null($id) ? null : '/'.$id).$this->getModel()->getExtra(), $w);
     }
 
     /**
      * Find specific instance of class
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function find(int|string $id, array|string $properties = ['*']): Model
     {
@@ -222,7 +233,7 @@ class Builder
     /**
      * Order newest to oldest
      */
-    public function latest(string $column = null): self
+    public function latest(?string $column = null): self
     {
         $column ??= $this->getModel()->getCreatedAtColumn();
 
@@ -284,7 +295,7 @@ class Builder
     /**
      * Order oldest to newest
      */
-    public function oldest(string $column = null): self
+    public function oldest(?string $column = null): self
     {
         $column ??= $this->getModel()->getCreatedAtColumn();
 
@@ -317,7 +328,7 @@ class Builder
      *
      * @throws InvalidRelationshipException
      */
-    public function page(int|string $number, int|string $size = null): self
+    public function page(int|string $number, int|string|null $size = null): self
     {
         return $this->where('pageNumber', (int) $number)
             ->when($size, fn (self $b): self => $b->paginate($size));
@@ -328,22 +339,10 @@ class Builder
      *
      * @throws InvalidRelationshipException
      */
-    public function paginate(int|string $size = null): self
+    public function paginate(int|string|null $size = null): self
     {
         return $this->unless($size, fn (self $b): self => $b->where('paginate', false))
             ->when($size, fn (self $b): self => $b->where('paginate', true)->where('pageSize', (int) $size));
-    }
-
-    /**
-     * Peel of the wrapping property if it exist.
-     *
-     * @throws InvalidRelationshipException
-     */
-    protected function peelWrapperPropertyIfNeeded(array $properties): array
-    {
-        return array_key_exists($this->getModel()->getResponseKey(), $properties)
-            ? $properties[$this->getModel()->getResponseKey()]
-            : $properties;
     }
 
     /**

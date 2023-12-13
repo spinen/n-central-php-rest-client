@@ -87,7 +87,7 @@ class Collection extends BaseCollection
     /**
      * Set pagination
      */
-    public function setPagination(int $count = null, int $page = null, int $pages = null, int $pageSize = null): self
+    public function setPagination(?int $count = null, ?int $page = null, ?int $pages = null, ?int $pageSize = null): self
     {
         $this->pagination = array_merge($this->pagination, compact('count', 'page', 'pages', 'pageSize'));
 

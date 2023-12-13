@@ -2,12 +2,14 @@
 
 namespace Spinen\Ncentral\Api;
 
+use Exception;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\ClientConfigurationException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Version\Version;
 
 /**
@@ -31,8 +33,9 @@ class Client
     /**
      * Shortcut to 'DELETE' request
      *
+     * @throws ApiException
      * @throws GuzzleException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     // TODO: Enable this once they add endpoints that support delete
     //  public function delete(string $path): ?array
@@ -43,8 +46,9 @@ class Client
     /**
      * Shortcut to 'GET' request
      *
+     * @throws ApiException
      * @throws GuzzleException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function get(string $path): ?array
     {
@@ -54,6 +58,7 @@ class Client
     /**
      * Get, return, or refresh the token
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws RuntimeException
      */
@@ -73,10 +78,37 @@ class Client
     }
 
     /**
+     * Process exception
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws RuntimeException
+     */
+    protected function processException(GuzzleException $e): void
+    {
+        if (! is_a($e, RequestException::class)) {
+            throw $e;
+        }
+
+        /** @var RequestException $e */
+        $body = $e->getResponse()->getBody()->getContents();
+
+        $results = json_decode($body, true);
+
+        throw new ApiException(
+            body: $body,
+            code: $results['status'],
+            message: $results['message'],
+            previous: $e,
+        );
+    }
+
+    /**
      * Shortcut to 'POST' request
      *
+     * @throws ApiException
      * @throws GuzzleException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function post(string $path, array $data): ?array
     {
@@ -86,8 +118,9 @@ class Client
     /**
      * Shortcut to 'PUT' request
      *
+     * @throws ApiException
      * @throws GuzzleException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     // TODO: Enable this once they add endpoints that support put
     // public function put(string $path, array $data): ?array
@@ -98,8 +131,9 @@ class Client
     /**
      * Make an API call to Ncentral
      *
+     * @throws ApiException
      * @throws GuzzleException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function request(?string $path, ?array $data = [], ?string $method = 'GET'): ?array
     {
@@ -115,7 +149,7 @@ class Client
                             'Content-Type' => 'application/json',
                             'User-Agent' => 'SPINEN/'.$this->getVersion(),
                         ],
-                        // 'body' => empty($data) ? null : json_encode($data),
+                        'body' => empty($data) ? null : json_encode($data),
                     ],
                     uri: $this->uri($path),
                 )
@@ -123,10 +157,7 @@ class Client
                     ->getContents(),
             );
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
@@ -135,6 +166,7 @@ class Client
     /**
      * Refresh a token
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws RuntimeException
      */
@@ -165,16 +197,14 @@ class Client
 
             return $this->token;
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
     /**
      * Request a token
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws RuntimeException
      */
@@ -204,10 +234,7 @@ class Client
 
             return $this->token;
         } catch (GuzzleException $e) {
-            // TODO: Figure out what to do with this error
-            // TODO: Consider returning [] for 401's?
-
-            throw $e;
+            $this->processException($e);
         }
     }
 
@@ -287,7 +314,7 @@ class Client
      * in the configs, but if a url is passed in as a second parameter then it is used.
      * If no url is found it will use the hard-coded v2 Ncentral API URL.
      */
-    public function uri(string $path = null, string $url = null): string
+    public function uri(?string $path = null, ?string $url = null): string
     {
         if ($path && Str::startsWith($path, 'http')) {
             return $path;
