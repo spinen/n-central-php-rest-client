@@ -423,7 +423,6 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         $path = rtrim($this->path, '/');
 
         // If have an id, then put it on the end
-        // NOTE: Ncentral treats creates & updates the same, so only on existing
         if ($this->exist && $this->getKey()) {
             $path .= '/'.$this->getKey();
         }

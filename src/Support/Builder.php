@@ -10,6 +10,7 @@ use Illuminate\Support\Traits\Conditionable;
 use RuntimeException;
 use Spinen\Ncentral\Concerns\HasClient;
 use Spinen\Ncentral\Customer;
+use Spinen\Ncentral\DetailedScheduledTask;
 use Spinen\Ncentral\Device;
 use Spinen\Ncentral\DeviceTask;
 use Spinen\Ncentral\Exceptions\ApiException;
@@ -17,6 +18,7 @@ use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\NoClientException;
 use Spinen\Ncentral\Health;
+use Spinen\Ncentral\ScheduledTask;
 use Spinen\Ncentral\ServerInfo;
 
 /**
@@ -58,9 +60,11 @@ class Builder
      */
     protected $rootModels = [
         'customers' => Customer::class,
+        'detailedScheduledTasks' => DetailedScheduledTask::class,
         'devices' => Device::class,
         'deviceTasks' => DeviceTask::class,
         'health' => Health::class,
+        'scheduledTasks' => ScheduledTask::class,
         'serverInfo' => ServerInfo::class,
     ];
 
