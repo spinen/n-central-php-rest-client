@@ -211,7 +211,7 @@ class Builder
         $id = Arr::pull($w, $this->getModel()->getKeyName());
 
         return $this->getModel()
-            ->getPath($extra.(is_null($id) ? null : '/'.$id), $w);
+            ->getPath($extra.(is_null($id) ? null : '/'.$id).$this->getModel()->getExtra(), $w);
     }
 
     /**
