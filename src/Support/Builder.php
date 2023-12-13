@@ -7,14 +7,15 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as LaravelCollection;
 use Illuminate\Support\Traits\Conditionable;
+use RuntimeException;
 use Spinen\Ncentral\Concerns\HasClient;
 use Spinen\Ncentral\Customer;
 use Spinen\Ncentral\Device;
 use Spinen\Ncentral\DeviceTask;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Ncentral\Health;
 use Spinen\Ncentral\ServerInfo;
 
@@ -71,9 +72,13 @@ class Builder
     /**
      * Magic method to make builders for root models
      *
+     * @throws ApiException
      * @throws BadMethodCallException
+     * @throws GuzzleException
+     * @throws InvalidRelationshipException
      * @throws ModelNotFoundException
      * @throws NoClientException
+     * @throws RuntimeException
      */
     public function __call(string $name, array $arguments)
     {
@@ -87,11 +92,12 @@ class Builder
     /**
      * Magic method to make builders appears as properties
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws ModelNotFoundException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function __get(string $name): Collection|Model|null
     {
@@ -130,10 +136,11 @@ class Builder
     /**
      * Get Collection of class instances that match query
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function get(array|string $properties = ['*'], ?string $extra = null): Collection|Model
     {
@@ -206,10 +213,11 @@ class Builder
     /**
      * Find specific instance of class
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function find(int|string $id, array|string $properties = ['*']): Model
     {

@@ -3,9 +3,10 @@
 namespace Spinen\Ncentral\Support\Relations;
 
 use GuzzleHttp\Exception\GuzzleException;
+use RuntimeException;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Ncentral\Support\Builder;
 use Spinen\Ncentral\Support\Model;
 
@@ -58,10 +59,11 @@ class BelongsTo extends Relation
     /**
      * Get the results of the relationship.
      *
+     * @throws ApiException
      * @throws GuzzleException
      * @throws InvalidRelationshipException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function getResults(): ?Model
     {

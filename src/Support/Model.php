@@ -9,19 +9,22 @@ use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Concerns\HasAttributes;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
+use Illuminate\Database\Eloquent\InvalidCastException;
 use Illuminate\Database\Eloquent\JsonEncodingException;
+use Illuminate\Database\Eloquent\MissingAttributeException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 use JsonSerializable;
 use LogicException;
+use RuntimeException;
 use Spinen\Ncentral\Concerns\HasClient;
+use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\ModelReadonlyException;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\Exceptions\TokenException;
 use Spinen\Ncentral\Exceptions\UnableToSaveException;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\ChildOf;
@@ -302,8 +305,10 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Delete the model from Ncentral
      *
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
      */
     // TODO: Enable this once they add endpoints that support delete
     // public function delete(): bool
@@ -679,8 +684,12 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Save the model in Ncentral
      *
+     * @throws ApiException
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      */
     public function save(): bool
     {
@@ -704,8 +713,8 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             $this->setRawAttributes($response, true);
 
             return true;
-        } catch (GuzzleException $e) {
-            // TODO: Do something with the error
+        } catch (RuntimeException $e) {
+            // TODO: Should we do something with the error?
 
             return false;
         }
@@ -714,8 +723,12 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Save the model in Ncentral, but raise error if fail
      *
+     * @throws ApiException
+     * @throws InvalidCastException
+     * @throws LogicException
+     * @throws MissingAttributeException
      * @throws NoClientException
-     * @throws TokenException
+     * @throws RuntimeException
      * @throws UnableToSaveException
      */
     public function saveOrFail(): bool
