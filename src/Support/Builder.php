@@ -24,9 +24,21 @@ use Spinen\Ncentral\ServerInfo;
 /**
  * Class Builder
  *
+ * @property Collection $customers
+ * @property Collection $detailedScheduledTasks
  * @property Collection $devices
+ * @property Collection $deviceTasks
+ * @property Health $health
+ * @property Collection $scheduledTasks
+ * @property ServerInfo $serverInfo
  *
+ * @method self customers()
+ * @method self detailedScheduledTasks()
  * @method self devices()
+ * @method self deviceTasks()
+ * @method self health()
+ * @method self scheduledTasks()
+ * @method self serverInfo()
  */
 class Builder
 {
