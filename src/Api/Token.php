@@ -80,6 +80,6 @@ class Token
     {
         return is_null($this->access_token) || CarbonImmutable::now()->gte($this->expires_at)
             ? 0
-            : $this->expires_at?->diffInSeconds();
+            : (int) floor(abs(CarbonImmutable::now()->diffInSeconds($this->expires_at)));
     }
 }
