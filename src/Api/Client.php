@@ -137,7 +137,8 @@ class Client
      */
     public function request(?string $path, ?array $data = [], ?string $method = 'GET'): ?array
     {
-        try {
+        // TODO: Decide if going to do more than let the exception bubble up
+        // try {
             return json_decode(
                 associative: true,
                 json: $this->guzzle->request(
@@ -156,9 +157,9 @@ class Client
                     ->getBody()
                     ->getContents(),
             );
-        } catch (GuzzleException $e) {
-            $this->processException($e);
-        }
+        // } catch (GuzzleException $e) {
+        //     $this->processException($e);
+        // }
     }
 
     // TODO: Cleanup/combine the refresh & request methods
@@ -172,7 +173,8 @@ class Client
      */
     public function refreshToken(): Token
     {
-        try {
+        // TODO: Decide if going to do more than let the exception bubble up
+        // try {
             $this->token = new Token(...json_decode(
                 associative: true,
                 json: $this->guzzle->request(
@@ -196,9 +198,9 @@ class Client
             )['tokens']);
 
             return $this->token;
-        } catch (GuzzleException $e) {
-            $this->processException($e);
-        }
+        // } catch (GuzzleException $e) {
+        //     $this->processException($e);
+        // }
     }
 
     /**
@@ -210,7 +212,8 @@ class Client
      */
     public function requestToken(): Token
     {
-        try {
+        // TODO: Decide if going to do more than let the exception bubble up
+        // try {
             $this->token = new Token(...json_decode(
                 associative: true,
                 json: $this->guzzle->request(
@@ -233,9 +236,9 @@ class Client
             )['tokens']);
 
             return $this->token;
-        } catch (GuzzleException $e) {
-            $this->processException($e);
-        }
+        // } catch (GuzzleException $e) {
+        //     $this->processException($e);
+        // }
     }
 
     /**
