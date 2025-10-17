@@ -25,7 +25,6 @@ class Client
         protected Guzzle $guzzle = new Guzzle,
         protected Token|string|null $token = null,
         protected bool $debug = false,
-        protected string $useragent = "",
     ) {
         $this->setConfigs($configs);
 
@@ -37,7 +36,6 @@ class Client
         elseif (!empty($configs['jwt'])) {
             $this->requestToken();
         }
-        $this->useragent = 'SPINEN/' . trim((string) $this->getVersion());
     }
 
     /**
@@ -154,13 +152,13 @@ class Client
             json: $this->guzzle->request(
                 method: $method,
                 options: [
-                    'debug'   => $this->debug,
+                    'debug' => $this->debug,
                     'headers' => [
                         'Authorization' => (string) $this->getToken(),
-                        'Content-Type'  => 'application/json',
-                        'User-Agent' => $this->useragent,
+                        'Content-Type' => 'application/json',
+                        'User-Agent' => 'SPINEN/' . trim((string) $this->getVersion()),
                     ],
-                    'body'    => empty($data) ? null : json_encode($data),
+                    'body' => empty($data) ? null : json_encode($data),
                 ],
                 uri: $this->uri($path),
             )
@@ -195,7 +193,7 @@ class Client
                             'Accept' => '*/*',
                             'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
                             'Content-Type' => 'text/plain',
-                            'User-Agent' => $this->useragent,
+                            'User-Agent' => 'SPINEN/' . trim((string) $this->getVersion()),
                             'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
                             'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
                         ],
@@ -232,8 +230,8 @@ class Client
                         'debug' => $this->debug,
                         'headers' => [
                             'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
-                            'Content-Type'  => 'Bearer'.' '.$this->configs['jwt'],
-                            'User-Agent' => $this->useragent,
+                            'Content-Type'  => 'text/plain',
+                            'User-Agent' => 'SPINEN/' . trim((string) $this->getVersion()),
                             'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
                             'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s'
                         ],
