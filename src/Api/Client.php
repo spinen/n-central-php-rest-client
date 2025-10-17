@@ -23,11 +23,21 @@ class Client
     public function __construct(
         protected array $configs,
         protected Guzzle $guzzle = new Guzzle,
-        protected Token $token = new Token,
+        protected Token|string|null $token = null,
         protected bool $debug = false,
+        protected string $useragent = "",
     ) {
         $this->setConfigs($configs);
-        $this->setToken($token);
+
+        // If a token was passed in explicitly, use that
+        if (!is_null($token)) {
+            $this->setToken($token);
+        }
+        // Otherwise, request token from jwt
+        elseif (!empty($configs['jwt'])) {
+            $this->requestToken();
+        }
+        $this->useragent = 'SPINEN/' . trim((string) $this->getVersion());
     }
 
     /**
@@ -139,24 +149,24 @@ class Client
     {
         // TODO: Decide if going to do more than let the exception bubble up
         // try {
-            return json_decode(
-                associative: true,
-                json: $this->guzzle->request(
-                    method: $method,
-                    options: [
-                        'debug' => $this->debug,
-                        'headers' => [
-                            'Authorization' => (string) $this->getToken(),
-                            'Content-Type' => 'application/json',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
-                        ],
-                        'body' => empty($data) ? null : json_encode($data),
+        return json_decode(
+            associative: true,
+            json: $this->guzzle->request(
+                method: $method,
+                options: [
+                    'debug'   => $this->debug,
+                    'headers' => [
+                        'Authorization' => (string) $this->getToken(),
+                        'Content-Type'  => 'application/json',
+                        'User-Agent' => $this->useragent,
                     ],
-                    uri: $this->uri($path),
-                )
-                    ->getBody()
-                    ->getContents(),
-            );
+                    'body'    => empty($data) ? null : json_encode($data),
+                ],
+                uri: $this->uri($path),
+            )
+                ->getBody()
+                ->getContents(),
+        );
         // } catch (GuzzleException $e) {
         //     $this->processException($e);
         // }
@@ -185,7 +195,7 @@ class Client
                             'Accept' => '*/*',
                             'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
                             'Content-Type' => 'text/plain',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
+                            'User-Agent' => $this->useragent,
                             'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
                             'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
                         ],
@@ -221,12 +231,11 @@ class Client
                     options: [
                         'debug' => $this->debug,
                         'headers' => [
-                            'Accept' => '*/*',
                             'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
-                            'Content-Type' => 'text/plain',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
+                            'Content-Type'  => 'Bearer'.' '.$this->configs['jwt'],
+                            'User-Agent' => $this->useragent,
                             'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
-                            'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
+                            'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s'
                         ],
                     ],
                     uri: $this->uri('auth/authenticate'),

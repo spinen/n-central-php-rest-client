@@ -6,3 +6,4 @@
 composer.lock
 phpunit.xml
 tasks.md
+/.idea
