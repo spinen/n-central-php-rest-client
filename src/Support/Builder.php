@@ -142,7 +142,7 @@ class Builder
      *
      * This is reset to false after the request
      */
-    public function debug(bool $debug = true): self
+    public function setDebug(bool $debug = true): self
     {
         $this->debug = $debug;
 
