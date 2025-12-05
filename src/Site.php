@@ -7,13 +7,11 @@ use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\HasMany;
 
 /**
- * Class Customer
+ * Class Site
  *
  * @property int $orgUnitId
- * @property int $customerId
  * @property int $parentId
  * @property string $orgUnitName
- * @property string $customerName
  * @property string $orgUnitType
  * @property string|null $externalId
  * @property string|null $externalId2
@@ -30,15 +28,11 @@ use Spinen\Ncentral\Support\Relations\HasMany;
  * @property string|null $city
  * @property string|null $stateProv
  * @property string|null $country
- * @property string|null $county
  * @property string|null $postalCode
- * @property bool $isServiceOrg
- * @property bool $isSystem
- * @property-read ServiceOrganization $serviceOrganization
- * @property-read \Spinen\Ncentral\Support\Collection $sites
+ * @property-read Customer $customer
  * @property-read \Spinen\Ncentral\Support\Collection $devices
  */
-class Customer extends Model
+class Site extends Model
 {
     /**
      * The attributes that should be cast to native types.
@@ -47,21 +41,18 @@ class Customer extends Model
      */
     protected $casts = [
         'orgUnitId' => 'int',
-        'customerId' => 'int',
         'parentId' => 'int',
-        'isSystem' => 'bool',
-        'isServiceOrg' => 'bool',
     ];
 
     /**
      * The primary key for the model.
      */
-    protected string $primaryKey = 'customerId';
+    protected string $primaryKey = 'orgUnitId';
 
     /**
      * Path to API endpoint.
      */
-    protected string $path = '/customers';
+    protected string $path = '/org-units';
 
     /**
      * Is the model readonly?
@@ -69,38 +60,23 @@ class Customer extends Model
     protected bool $readonlyModel = true;
 
     /**
-     * Get the service organization that owns this customer
+     * Get the customer that owns this site
      */
-    public function serviceOrganization(): BelongsTo
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo(ServiceOrganization::class, 'parentId');
+        return $this->belongsTo(Customer::class, 'parentId');
     }
 
     /**
-     * Get all sites for this customer
-     */
-    public function sites(): HasMany
-    {
-        $relation = $this->hasMany(Site::class);
-        $related = $relation->getBuilder()->getModel();
-
-        // Get children of this org unit
-        $related->setPath('/org-units/' . $this->customerId . '/children');
-        $related->parentModel = null;
-
-        return $relation;
-    }
-
-    /**
-     * Get all devices for this customer
+     * Get all devices for this site
      */
     public function devices(): HasMany
     {
         $relation = $this->hasMany(Device::class);
         $related = $relation->getBuilder()->getModel();
 
-        // Override the path to use org-units instead of customers
-        $related->setPath('/org-units/' . $this->customerId . '/devices');
+        // Override the path to use org-units instead of devices
+        $related->setPath('/org-units/' . $this->orgUnitId . '/devices');
         $related->parentModel = null;
 
         return $relation;

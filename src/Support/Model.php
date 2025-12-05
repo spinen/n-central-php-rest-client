@@ -740,7 +740,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     }
 
     /**
-     * Set the readonly
+     * Set the extra path
      *
      * @return $this
      */
@@ -752,7 +752,31 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     }
 
     /**
-     * Set the readonly
+     * Set whether endpoint is nested behind another endpoint
+     *
+     * @return $this
+     */
+    public function setNested(bool $nested = true): self
+    {
+        $this->nested = $nested;
+
+        return $this;
+    }
+
+    /**
+     * Set the path to API endpoint
+     *
+     * @return $this
+     */
+    public function setPath(string $path): self
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Set the readonly flag
      *
      * @return $this
      */
