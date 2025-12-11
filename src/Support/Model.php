@@ -310,25 +310,23 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      * @throws MissingAttributeException
      * @throws NoClientException
      */
-    // TODO: Enable this once they add endpoints that support delete
-    // public function delete(): bool
-    // {
-    //     // TODO: Make sure that the model supports being deleted
-    //     if ($this->getReadonlyModel()) {
-    //         return false;
-    //     }
+    public function delete(array $query = []): bool
+    {
+        if ($this->getReadonlyModel()) {
+            return false;
+        }
 
-    //     try {
-    //         $this->getClient()
-    //             ->delete($this->getPath());
+        try {
+            $this->getClient()
+                ->delete($this->getPath(null, $query));
 
-    //         return true;
-    //     } catch (GuzzleException $e) {
-    //         // TODO: Do something with the error
+            return true;
+        } catch (GuzzleException $e) {
+            // TODO: Do something with the error
 
-    //         return false;
-    //     }
-    // }
+            return false;
+        }
+    }
 
     /**
      * Fill the model with the supplied properties
@@ -423,7 +421,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
         $path = rtrim($this->path, '/');
 
         // If have an id, then put it on the end
-        if ($this->exist && $this->getKey()) {
+        if ($this->exists && $this->getKey()) {
             $path .= '/'.$this->getKey();
         }
 
