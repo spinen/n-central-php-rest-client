@@ -2,63 +2,17 @@
 
 namespace Spinen\Ncentral;
 
-use Spinen\Ncentral\Support\Model;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\HasMany;
 
 /**
  * Class Site
  *
- * @property int $orgUnitId
- * @property int $parentId
- * @property string $orgUnitName
- * @property string $orgUnitType
- * @property string|null $externalId
- * @property string|null $externalId2
- * @property string $contactFirstName
- * @property string $contactLastName
- * @property string|null $phone
- * @property string|null $contactTitle
- * @property string|null $contactEmail
- * @property string|null $contactPhone
- * @property string|null $contactPhoneExt
- * @property string|null $contactDepartment
- * @property string|null $street1
- * @property string|null $street2
- * @property string|null $city
- * @property string|null $stateProv
- * @property string|null $country
- * @property string|null $postalCode
  * @property-read Customer $customer
  * @property-read \Spinen\Ncentral\Support\Collection $devices
  */
-class Site extends Model
+class Site extends OrgUnit
 {
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'orgUnitId' => 'int',
-        'parentId' => 'int',
-    ];
-
-    /**
-     * The primary key for the model.
-     */
-    protected string $primaryKey = 'orgUnitId';
-
-    /**
-     * Path to API endpoint.
-     */
-    protected string $path = '/org-units';
-
-    /**
-     * Is the model readonly?
-     */
-    protected bool $readonlyModel = true;
-
     /**
      * Get the customer that owns this site
      */
