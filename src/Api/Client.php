@@ -37,11 +37,10 @@ class Client
      * @throws GuzzleException
      * @throws RuntimeException
      */
-    // TODO: Enable this once they add endpoints that support delete
-    //  public function delete(string $path): ?array
-    //  {
-    //      return $this->request($path, [], 'DELETE');
-    //  }
+    public function delete(string $path): ?array
+    {
+        return $this->request($path, [], 'DELETE');
+    }
 
     /**
      * Shortcut to 'GET' request
