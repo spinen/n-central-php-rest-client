@@ -142,7 +142,7 @@ class Builder
      *
      * This is reset to false after the request
      */
-    public function setDebug(bool $debug = true): self
+    public function debug(bool $debug = true): self
     {
         $this->debug = $debug;
 
@@ -287,11 +287,11 @@ class Builder
                 ->setClass($this->class)
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
-                ->setDebug($this->debug)
+                ->debug($this->debug)
             : (new static())
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
-                ->setDebug($this->debug);
+                ->debug($this->debug);
     }
 
     /**
