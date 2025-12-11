@@ -19,14 +19,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           # Fetch 10 commits or Scrutinizer will throw ("Failed to retrieve commit parents. If you use a shallow git checkout, please checkout at least a depth of one."), see: RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
           # 10 commits is an arbitrary value that is more than 1 commit
           fetch-depth: 10
 
       - name: Cache dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.composer/cache
           key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
@@ -38,7 +38,7 @@ jobs:
           coverage: pcov
 
       - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
+        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: PHP Security Checker
         uses: symfonycorp/security-checker-action@v5
@@ -48,4 +48,5 @@ jobs:
         run: vendor/bin/phpunit --coverage-clover=coverage.clover
 
       - name: Upload Code Coverage
-        run: vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
+        continue-on-error: true
+        run: vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover || true
