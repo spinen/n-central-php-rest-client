@@ -12,8 +12,12 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.1, 8.2]
+        php: [8.1, 8.2, 8.3]
         stability: [prefer-lowest, prefer-stable]
+        exclude:
+          # PHP 8.1 doesn't support Laravel 11+, so skip prefer-stable which might install L12
+          - php: 8.1
+            stability: prefer-stable
 
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
