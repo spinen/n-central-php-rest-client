@@ -58,4 +58,12 @@ class Device extends Model
      * Is the model readonly?
      */
     protected bool $readonlyModel = false;
+
+    /**
+     * Get the customer that owns this device
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'customerId');
+    }
 }
