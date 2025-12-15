@@ -3,6 +3,7 @@
 namespace Spinen\Ncentral;
 
 use Spinen\Ncentral\Support\Model;
+use Spinen\Ncentral\Support\Relations\BelongsTo;
 
 /**
  * Class Device
@@ -27,6 +28,7 @@ use Spinen\Ncentral\Support\Model;
  * @property string $supportedOS
  * @property string $supportedOSLabel
  * @property string $uri
+ * @property-read Customer $customer
  */
 class Device extends Model
 {
@@ -56,4 +58,12 @@ class Device extends Model
      * Is the model readonly?
      */
     protected bool $readonlyModel = false;
+
+    /**
+     * Get the customer that owns this device
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'customerId');
+    }
 }
