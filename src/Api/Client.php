@@ -290,7 +290,7 @@ class Client
     /**
      * Set debug
      */
-    public function setDebug(bool $debug): self
+    public function setDebug(bool $debug = true): self
     {
         $this->debug = $debug;
 
