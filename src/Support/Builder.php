@@ -20,6 +20,8 @@ use Spinen\Ncentral\Exceptions\NoClientException;
 use Spinen\Ncentral\Health;
 use Spinen\Ncentral\ScheduledTask;
 use Spinen\Ncentral\ServerInfo;
+use Spinen\Ncentral\ServiceOrganization;
+use Spinen\Ncentral\Site;
 
 /**
  * Class Builder
@@ -31,6 +33,8 @@ use Spinen\Ncentral\ServerInfo;
  * @property Health $health
  * @property Collection $scheduledTasks
  * @property ServerInfo $serverInfo
+ * @property Collection $serviceOrganizations
+ * @property Collection $sites
  *
  * @method self customers()
  * @method self detailedScheduledTasks()
@@ -39,6 +43,8 @@ use Spinen\Ncentral\ServerInfo;
  * @method self health()
  * @method self scheduledTasks()
  * @method self serverInfo()
+ * @method self serviceOrganizations()
+ * @method self sites()
  */
 class Builder
 {
@@ -78,6 +84,8 @@ class Builder
         'health' => Health::class,
         'scheduledTasks' => ScheduledTask::class,
         'serverInfo' => ServerInfo::class,
+        'serviceOrganizations' => ServiceOrganization::class,
+        'sites' => Site::class,
     ];
 
     /**
@@ -187,7 +195,7 @@ class Builder
                             ->only($properties)
                             ->toArray()
                 )
-                ->setClient($this->getClient()->setDebug(false)))
+                ->setClient($this->getClient()->setDebug($this->debug)))
             ->setLinks($links)
             ->setPagination(count: $count, page: $page, pages: $pages, pageSize: $pageSize)
             // If never a collection, only return the first
@@ -287,9 +295,11 @@ class Builder
                 ->setClass($this->class)
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
+                ->debug($this->debug)
             : (new static())
                 ->setClient($this->getClient())
-                ->setParent($this->parentModel);
+                ->setParent($this->parentModel)
+                ->debug($this->debug);
     }
 
     /**

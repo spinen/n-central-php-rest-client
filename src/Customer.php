@@ -2,23 +2,21 @@
 
 namespace Spinen\Ncentral;
 
-use Spinen\Ncentral\Support\Model;
+use Spinen\Ncentral\Support\Relations\BelongsTo;
+use Spinen\Ncentral\Support\Relations\HasMany;
 
 /**
  * Class Customer
  *
+ * @property int $customerId
+ * @property string $customerName
  * @property bool $isServiceOrg
  * @property bool $isSystem
- * @property int $customerId
- * @property int $parentId
- * @property string $city
- * @property string $contactEmail
- * @property string $county
- * @property string $customerName
- * @property string $postalCode
- * @property string $stateProv
+ * @property-read ServiceOrganization $serviceOrganization
+ * @property-read \Spinen\Ncentral\Support\Collection $sites
+ * @property-read \Spinen\Ncentral\Support\Collection $devices
  */
-class Customer extends Model
+class Customer extends OrgUnit
 {
     /**
      * The attributes that should be cast to native types.
@@ -26,10 +24,11 @@ class Customer extends Model
      * @var array
      */
     protected $casts = [
+        'orgUnitId' => 'int',
         'customerId' => 'int',
+        'parentId' => 'int',
         'isSystem' => 'bool',
         'isServiceOrg' => 'bool',
-        'parentId' => 'int',
     ];
 
     /**
@@ -43,7 +42,40 @@ class Customer extends Model
     protected string $path = '/customers';
 
     /**
-     * Is the model readonly?
+     * Get the service organization that owns this customer
      */
-    protected bool $readonlyModel = true;
+    public function serviceOrganization(): BelongsTo
+    {
+        return $this->belongsTo(ServiceOrganization::class, 'parentId');
+    }
+
+    /**
+     * Get all sites for this customer
+     */
+    public function sites(): HasMany
+    {
+        $relation = $this->hasMany(Site::class);
+        $related = $relation->getBuilder()->getModel();
+
+        // Get children of this org unit
+        $related->setPath('/org-units/' . $this->customerId . '/children');
+        $related->parentModel = null;
+
+        return $relation;
+    }
+
+    /**
+     * Get all devices for this customer
+     */
+    public function devices(): HasMany
+    {
+        $relation = $this->hasMany(Device::class);
+        $related = $relation->getBuilder()->getModel();
+
+        // Override the path to use org-units instead of customers
+        $related->setPath('/org-units/' . $this->customerId . '/devices');
+        $related->parentModel = null;
+
+        return $relation;
+    }
 }
