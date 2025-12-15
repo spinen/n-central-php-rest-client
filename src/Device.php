@@ -55,5 +55,5 @@ class Device extends Model
     /**
      * Is the model readonly?
      */
-    protected bool $readonlyModel = true;
+    protected bool $readonlyModel = false;
 }

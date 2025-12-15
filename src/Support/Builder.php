@@ -187,7 +187,7 @@ class Builder
                             ->only($properties)
                             ->toArray()
                 )
-                ->setClient($this->getClient()->setDebug(false)))
+                ->setClient($this->getClient()->setDebug($this->debug)))
             ->setLinks($links)
             ->setPagination(count: $count, page: $page, pages: $pages, pageSize: $pageSize)
             // If never a collection, only return the first
@@ -287,9 +287,11 @@ class Builder
                 ->setClass($this->class)
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
+                ->debug($this->debug)
             : (new static())
                 ->setClient($this->getClient())
-                ->setParent($this->parentModel);
+                ->setParent($this->parentModel)
+                ->debug($this->debug);
     }
 
     /**
