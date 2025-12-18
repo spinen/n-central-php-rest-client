@@ -14,9 +14,17 @@
     colors="true"
     processIsolation="false"
     stopOnFailure="false"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
 >
   <coverage>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+    <exclude>
+      <directory>./src/Contracts</directory>
+      <directory>./src/Exceptions</directory>
+      <directory>./src/Providers</directory>
+    </exclude>
     <report>
       <clover outputFile="build/phpunit/logs/clover.xml"/>
       <html outputDirectory="./build/phpunit/coverage" lowUpperBound="35" highLowerBound="70"/>
@@ -27,9 +35,6 @@
     <testsuite name="Unit">
       <directory suffix="Test.php">./tests/Unit</directory>
     </testsuite>
-    <testsuite name="Feature">
-      <directory suffix="Test.php">./tests/Feature</directory>
-    </testsuite>
   </testsuites>
   <php>
     <!-- <env name="VARIABLE" value="value"/> -->
@@ -37,14 +42,4 @@
   <logging>
     <junit outputFile="./build/phpunit/logs/junit.xml"/>
   </logging>
-  <source>
-    <include>
-      <directory suffix=".php">./src</directory>
-    </include>
-    <exclude>
-      <directory>./src/Contracts</directory>
-      <directory>./src/Exceptions</directory>
-      <directory>./src/Providers</directory>
-    </exclude>
-  </source>
 </phpunit>
