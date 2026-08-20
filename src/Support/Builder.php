@@ -8,20 +8,26 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as LaravelCollection;
 use Illuminate\Support\Traits\Conditionable;
 use RuntimeException;
+use Spinen\Ncentral\AccessGroup;
+use Spinen\Ncentral\ApplianceTask;
 use Spinen\Ncentral\Concerns\HasClient;
 use Spinen\Ncentral\Customer;
+use Spinen\Ncentral\CustomPsaTicket;
 use Spinen\Ncentral\DetailedScheduledTask;
 use Spinen\Ncentral\Device;
+use Spinen\Ncentral\DeviceFilter;
 use Spinen\Ncentral\DeviceTask;
 use Spinen\Ncentral\Exceptions\ApiException;
 use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
 use Spinen\Ncentral\Exceptions\ModelNotFoundException;
 use Spinen\Ncentral\Exceptions\NoClientException;
 use Spinen\Ncentral\Health;
+use Spinen\Ncentral\Report;
 use Spinen\Ncentral\ScheduledTask;
 use Spinen\Ncentral\ServerInfo;
 use Spinen\Ncentral\ServiceOrganization;
 use Spinen\Ncentral\Site;
+use Spinen\Ncentral\User;
 
 /**
  * Class Builder
@@ -77,15 +83,21 @@ class Builder
      * @var array
      */
     protected $rootModels = [
+        'accessGroups' => AccessGroup::class,
+        'applianceTasks' => ApplianceTask::class,
         'customers' => Customer::class,
+        'customPsaTickets' => CustomPsaTicket::class,
         'detailedScheduledTasks' => DetailedScheduledTask::class,
+        'deviceFilters' => DeviceFilter::class,
         'devices' => Device::class,
         'deviceTasks' => DeviceTask::class,
         'health' => Health::class,
+        'reports' => Report::class,
         'scheduledTasks' => ScheduledTask::class,
         'serverInfo' => ServerInfo::class,
         'serviceOrganizations' => ServiceOrganization::class,
         'sites' => Site::class,
+        'users' => User::class,
     ];
 
     /**
@@ -210,7 +222,7 @@ class Builder
     public function getModel(): Model
     {
         if (! isset($this->class)) {
-            throw new InvalidRelationshipException();
+            throw new InvalidRelationshipException;
         }
 
         if (! isset($this->model)) {
@@ -274,12 +286,17 @@ class Builder
      * New up a class instance, but not saved
      *
      * @throws InvalidRelationshipException
+     * @throws RuntimeException
      */
     public function make(?array $attributes = []): Model
     {
-        // TODO: Make sure that the model supports "creating"
-        return $this->getModel()
-            ->newInstance($attributes);
+        $model = $this->getModel();
+
+        if ($model->getReadonlyModel()) {
+            throw new RuntimeException(sprintf('Model [%s] is read-only and cannot be created.', get_class($model)));
+        }
+
+        return $model->newInstance($attributes);
     }
 
     /**
@@ -291,12 +308,12 @@ class Builder
     public function newInstance(): self
     {
         return isset($this->class)
-            ? (new static())
+            ? (new static)
                 ->setClass($this->class)
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
                 ->debug($this->debug)
-            : (new static())
+            : (new static)
                 ->setClient($this->getClient())
                 ->setParent($this->parentModel)
                 ->debug($this->debug);
@@ -425,6 +442,14 @@ class Builder
     public function whereId(int|string|null $id): self
     {
         return $this->where($this->getModel()->getKeyName(), $id);
+    }
+
+    /**
+     * Limit response to specific fields
+     */
+    public function select(array|string $fields): self
+    {
+        return $this->where('select', implode(',', Arr::wrap($fields)));
     }
 
     /**
