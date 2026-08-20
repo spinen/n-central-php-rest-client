@@ -26,13 +26,7 @@ class Site extends OrgUnit
      */
     public function devices(): HasMany
     {
-        $relation = $this->hasMany(Device::class);
-        $related = $relation->getBuilder()->getModel();
-
-        // Override the path to use org-units instead of devices
-        $related->setPath('/org-units/' . $this->orgUnitId . '/devices');
-        $related->parentModel = null;
-
-        return $relation;
+        return $this->hasMany(Device::class)
+            ->withPath('/org-units/'.$this->orgUnitId.'/devices');
     }
 }

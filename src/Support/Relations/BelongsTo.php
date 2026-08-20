@@ -16,6 +16,11 @@ use Spinen\Ncentral\Support\Model;
 class BelongsTo extends Relation
 {
     /**
+     * Whether to return the child directly without querying.
+     */
+    protected bool $returnChildDirectly = false;
+
+    /**
      * Create a new belongs to relationship instance.
      *
      * @return void
@@ -57,6 +62,16 @@ class BelongsTo extends Relation
     }
 
     /**
+     * Return the child model directly without querying.
+     */
+    public function returnChildDirectly(): self
+    {
+        $this->returnChildDirectly = true;
+
+        return $this;
+    }
+
+    /**
      * Get the results of the relationship.
      *
      * @throws ApiException
@@ -67,6 +82,10 @@ class BelongsTo extends Relation
      */
     public function getResults(): ?Model
     {
+        if ($this->returnChildDirectly) {
+            return $this->getChild();
+        }
+
         if (! $this->getForeignKey()) {
             return null;
         }

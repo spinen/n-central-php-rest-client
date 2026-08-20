@@ -54,14 +54,8 @@ class Customer extends OrgUnit
      */
     public function sites(): HasMany
     {
-        $relation = $this->hasMany(Site::class);
-        $related = $relation->getBuilder()->getModel();
-
-        // Get children of this org unit
-        $related->setPath('/org-units/' . $this->customerId . '/children');
-        $related->parentModel = null;
-
-        return $relation;
+        return $this->hasMany(Site::class)
+            ->withPath('/org-units/'.$this->customerId.'/children');
     }
 
     /**
@@ -69,13 +63,7 @@ class Customer extends OrgUnit
      */
     public function devices(): HasMany
     {
-        $relation = $this->hasMany(Device::class);
-        $related = $relation->getBuilder()->getModel();
-
-        // Override the path to use org-units instead of customers
-        $related->setPath('/org-units/' . $this->customerId . '/devices');
-        $related->parentModel = null;
-
-        return $relation;
+        return $this->hasMany(Device::class)
+            ->withPath('/org-units/'.$this->customerId.'/devices');
     }
 }

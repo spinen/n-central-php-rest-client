@@ -15,6 +15,19 @@ use Spinen\Ncentral\Support\Collection;
 class HasMany extends Relation
 {
     /**
+     * Override the path for the related model and detach from parent.
+     *
+     * Use this when the API endpoint differs from the default nested path.
+     */
+    public function withPath(string $path): self
+    {
+        $this->getRelated()->setPath($path);
+        $this->getRelated()->parentModel = null;
+
+        return $this;
+    }
+
+    /**
      * Get the results of the relationship.
      *
      * @throws ApiException

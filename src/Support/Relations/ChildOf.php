@@ -2,19 +2,23 @@
 
 namespace Spinen\Ncentral\Support\Relations;
 
+use Spinen\Ncentral\Exceptions\InvalidRelationshipException;
+use Spinen\Ncentral\Support\Builder;
 use Spinen\Ncentral\Support\Model;
 
 /**
  * Class ChildOf
+ *
+ * @deprecated Use BelongsTo with returnChildDirectly() instead
  */
 class ChildOf extends BelongsTo
 {
     /**
-     * Get the results of the relationship.
+     * @throws InvalidRelationshipException
      */
-    public function getResults(): Model
+    public function __construct(Builder $builder, Model $child, $foreignKey)
     {
-        // TODO: May need to deal with null relatedModel?
-        return $this->getChild();
+        parent::__construct($builder, $child, $foreignKey);
+        $this->returnChildDirectly();
     }
 }
