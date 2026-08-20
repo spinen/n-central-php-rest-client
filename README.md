@@ -316,3 +316,42 @@ The following models are available through the builder:
 ## Known Issues
 
 * The N-central API is under active development and endpoints may change
+
+## TODO: API Coverage Gaps
+
+Based on the [N-central OpenAPI spec](https://nfr.n-able.com/api-explorer/openapi-spec.json), the following features are not yet implemented:
+
+### High Priority
+
+- [ ] Add `Users` model (`GET /api/users`, `GET /api/users/me`, `PATCH` user)
+- [ ] Add `DeviceCustomProperty` support (`GET/PUT /api/devices/{id}/custom-properties`)
+- [ ] Add `OrgUnitCustomProperty` support (`GET/PUT /api/org-units/{id}/custom-properties`)
+- [ ] Add registration token retrieval for customers/sites/org-units
+- [ ] Implement `select` query parameter for sparse fieldsets
+- [ ] Implement `sortBy`/`sortOrder` query parameters
+
+### Medium Priority
+
+- [ ] Add `AccessGroup` model (`GET /api/access-groups`)
+- [ ] Add `DeviceNote` CRUD operations (`GET/POST/PUT/DELETE /api/devices/{id}/notes`)
+- [ ] Add `DeviceAsset` and lifecycle-info support
+- [ ] Add `MaintenanceWindow` support (`GET/POST/PUT/DELETE /api/devices/maintenance-windows`)
+- [ ] Add `ServiceMonitorStatus` endpoint (`GET /api/devices/{id}/service-monitor-status`)
+- [ ] Add `ActiveIssue` for org-units (`GET /api/org-units/{id}/active-issues`)
+- [ ] Add `JobStatus` for org-units (`GET /api/org-units/{id}/job-statuses`)
+- [ ] Add `SoftwareInstaller` support (`GET/POST /api/customers/{id}/software/installers`)
+- [ ] Add `Report` endpoints (`GET /api/report/{reportId}`)
+- [ ] Add `POST /api/device` (device creation)
+- [ ] Add `DELETE /api/devices/{id}` (device deletion)
+- [ ] Add `POST /api/customers/{id}/sites` (site creation)
+- [ ] Add `POST /api/scheduled-tasks/direct` (direct task execution)
+
+### Low Priority
+
+- [ ] Add `DeviceFilter` model (`GET /api/device-filters`)
+- [ ] Add `UserRole` model (`GET/POST /api/org-units/{id}/user-roles`)
+- [ ] Add `CustomPsaTicket` support (`/api/custom-psa/tickets`)
+- [ ] Add `StandardPsa` integration (`/api/standard-psa/*`)
+- [ ] Add `ApplianceTask` endpoint (`GET /api/appliance-tasks/{taskId}`)
+- [ ] Add `RemoteControl` endpoints (`GET/POST /api/devices/{id}/remote-control-*`)
+- [ ] Add `OrgUnitLimit` GET/PATCH (`/api/org-units/{id}/limits`)
