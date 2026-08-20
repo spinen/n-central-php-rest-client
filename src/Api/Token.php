@@ -29,8 +29,8 @@ class Token
         }
 
         if (! empty($refresh)) {
-            $this->refresh_token = $access['token'] ?? $refresh_token;
-            $renew_in = $access['expirySeconds'] ?? $renew_in;
+            $this->refresh_token = $refresh['token'] ?? $refresh_token;
+            $renew_in = $refresh['expirySeconds'] ?? $renew_in;
         }
 
         $now = CarbonImmutable::now();
