@@ -1,5 +1,3 @@
-> NOTE: This is VERY early.  This is changing as N-central updates their API & as we get a better understanding of the API.  There are broken tests & some missing code, but we will firm this up over the next few weeks.
-
 # SPINEN's N-central PHP Client
 
 [![Latest Stable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/stable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
@@ -142,7 +140,7 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 ### Supported Actions for `Spinen\Ncentral\Api\Client`
 
-* _[NOT YET SUPPORTED BY API]_ ~~`delete(string $path)` - Shortcut to the `request()` method with 'DELETE' as the last parameter~~
+* `delete(string $path)` - Shortcut to the `request()` method with 'DELETE' as the last parameter
 
 * `get(string $path)` - Shortcut to the `request()` method with 'GET' as the last parameter
 
@@ -156,11 +154,9 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 * `refreshToken()` - Refresh a token
 
-* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an [API call to N-central](https://ncentralservicedesk.com/apidoc/info) to `$path` with the `$data` using the JWT for the logged in user.
+* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an API call to N-central to `$path` with the `$data` using the JWT for the logged in user.
 
 * `requestToken()` - Request a token
-
-* `setConfigs(array $configs)` - Validate & set the configs
 
 * `setDebug(bool $debug)` - Set Guzzle to debug
 
@@ -168,7 +164,7 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 * `uri(?string $path = null, ?string $url = null)` - Generate a full uri for the path to the N-central API.
 
-* `validToken()` - Is the token valid & if provided a scope, is the token approved for the scope
+* `validToken()` - Is the token valid
 
 ### Using the Client
 
@@ -203,19 +199,36 @@ The API responses are cast into models with the properties cast into the types a
 
 #### Relationships
 
-> NOTE: Not yet setup
-
-Some of the responses have links to the related resources.  If a property has a relationship, you can call it as a method and the additional calls are automatically made & returned.  The value is stored in place of the original data, so once it is loaded it is cached.
+Some of the models have relationships to other models. You can call the relationship as a method and the additional API calls are automatically made & returned.
 
 ```php
+> $customer = $builder->customers->first()
+= Spinen\Ncentral\Customer {#4967}
 
+// Get all devices for this customer
+> $customer->devices()->get()
+= Spinen\Ncentral\Support\Collection {#5001
+    all: [
+      Spinen\Ncentral\Device {#5003},
+      // more...
+    ],
+  }
+
+// Get the service organization that owns this customer
+> $customer->serviceOrganization
+= Spinen\Ncentral\ServiceOrganization {#5010}
 ```
 
-You may also call these relationships as attributes, and the Client will return a `Collection` for you (just like Eloquent).
+**Available relationships:**
 
-```php
-
-```
+| Model | Relationship | Returns |
+|-------|--------------|---------|
+| `Customer` | `devices()` | Collection of Device |
+| `Customer` | `sites()` | Collection of Site |
+| `Customer` | `serviceOrganization()` | ServiceOrganization |
+| `Site` | `devices()` | Collection of Device |
+| `Site` | `customer()` | Customer |
+| `ServiceOrganization` | `customers()` | Collection of Customer |
 
 #### Collections
 
@@ -275,7 +288,7 @@ Several of the endpoints support pagination.  You can use simple pagination by c
 > $builder->customers->count()
 = 4
 
-$builder->statuses->pluck('customerName', 'customerId')->sort()
+$builder->customers->pluck('customerName', 'customerId')->sort()
 = Spinen\Ncentral\Support\Collection {#4959
     all: [
       18 => "Customer A",
@@ -284,12 +297,22 @@ $builder->statuses->pluck('customerName', 'customerId')->sort()
   }
 ```
 
-## Open Items
+## Available Models
 
-* Setup the relationships in the models
-* Add getters to models
-* Add scopes on models
+The following models are available through the builder:
+
+| Property | Model | Description |
+|----------|-------|-------------|
+| `customers` | `Customer` | Customer organizations |
+| `devices` | `Device` | Managed devices |
+| `deviceTasks` | `DeviceTask` | Tasks assigned to devices |
+| `detailedScheduledTasks` | `DetailedScheduledTask` | Detailed scheduled task information |
+| `health` | `Health` | System health status |
+| `scheduledTasks` | `ScheduledTask` | Scheduled tasks |
+| `serverInfo` | `ServerInfo` | N-central server information |
+| `serviceOrganizations` | `ServiceOrganization` | Service organizations |
+| `sites` | `Site` | Customer sites |
 
 ## Known Issues
 
-* They are refining the API, so things may break
+* The N-central API is under active development and endpoints may change
