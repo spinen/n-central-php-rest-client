@@ -138,30 +138,62 @@ class Client
     {
         // TODO: Decide if going to do more than let the exception bubble up
         // try {
-            return json_decode(
-                associative: true,
-                json: $this->guzzle->request(
-                    method: $method,
-                    options: [
-                        'debug' => $this->debug,
-                        'headers' => [
-                            'Authorization' => (string) $this->getToken(),
-                            'Content-Type' => 'application/json',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
-                        ],
-                        'body' => empty($data) ? null : json_encode($data),
+        return json_decode(
+            associative: true,
+            json: $this->guzzle->request(
+                method: $method,
+                options: [
+                    'debug' => $this->debug,
+                    'headers' => [
+                        'Authorization' => (string) $this->getToken(),
+                        'Content-Type' => 'application/json',
+                        'User-Agent' => 'SPINEN/'.$this->getVersion(),
                     ],
-                    uri: $this->uri($path),
-                )
-                    ->getBody()
-                    ->getContents(),
-            );
+                    'body' => empty($data) ? null : json_encode($data),
+                ],
+                uri: $this->uri($path),
+            )
+                ->getBody()
+                ->getContents(),
+        );
         // } catch (GuzzleException $e) {
         //     $this->processException($e);
         // }
     }
 
-    // TODO: Cleanup/combine the refresh & request methods
+    /**
+     * Authenticate with N-Central API
+     *
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws RuntimeException
+     */
+    protected function authenticate(string $endpoint, ?string $body = null): Token
+    {
+        $this->token = new Token(...json_decode(
+            associative: true,
+            json: $this->guzzle->request(
+                method: 'POST',
+                options: [
+                    'debug' => $this->debug,
+                    'headers' => [
+                        'Accept' => '*/*',
+                        'Authorization' => 'Bearer '.$this->configs['jwt'],
+                        'Content-Type' => 'text/plain',
+                        'User-Agent' => 'SPINEN/'.$this->getVersion(),
+                        'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
+                        'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
+                    ],
+                    'body' => $body,
+                ],
+                uri: $this->uri($endpoint),
+            )
+                ->getBody()
+                ->getContents(),
+        )['tokens']);
+
+        return $this->token;
+    }
 
     /**
      * Refresh a token
@@ -172,34 +204,7 @@ class Client
      */
     public function refreshToken(): Token
     {
-        // TODO: Decide if going to do more than let the exception bubble up
-        // try {
-            $this->token = new Token(...json_decode(
-                associative: true,
-                json: $this->guzzle->request(
-                    method: 'POST',
-                    options: [
-                        'debug' => $this->debug,
-                        'headers' => [
-                            'Accept' => '*/*',
-                            'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
-                            'Content-Type' => 'text/plain',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
-                            'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
-                            'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
-                        ],
-                        'body' => $this->token->refresh_token,
-                    ],
-                    uri: $this->uri('auth/refresh'),
-                )
-                    ->getBody()
-                    ->getContents(),
-            )['tokens']);
-
-            return $this->token;
-        // } catch (GuzzleException $e) {
-        //     $this->processException($e);
-        // }
+        return $this->authenticate('auth/refresh', $this->token->refresh_token);
     }
 
     /**
@@ -211,33 +216,7 @@ class Client
      */
     public function requestToken(): Token
     {
-        // TODO: Decide if going to do more than let the exception bubble up
-        // try {
-            $this->token = new Token(...json_decode(
-                associative: true,
-                json: $this->guzzle->request(
-                    method: 'POST',
-                    options: [
-                        'debug' => $this->debug,
-                        'headers' => [
-                            'Accept' => '*/*',
-                            'Authorization' => 'Bearer'.' '.$this->configs['jwt'],
-                            'Content-Type' => 'text/plain',
-                            'User-Agent' => 'SPINEN/'.$this->getVersion(),
-                            'X-ACCESS-EXPIRY-OVERRIDE' => $this->configs['override']['access'].'s',
-                            'X-REFRESH-EXPIRY-OVERRIDE' => $this->configs['override']['refresh'].'s',
-                        ],
-                    ],
-                    uri: $this->uri('auth/authenticate'),
-                )
-                    ->getBody()
-                    ->getContents(),
-            )['tokens']);
-
-            return $this->token;
-        // } catch (GuzzleException $e) {
-        //     $this->processException($e);
-        // }
+        return $this->authenticate('auth/authenticate');
     }
 
     /**

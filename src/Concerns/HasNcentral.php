@@ -28,10 +28,14 @@ trait HasNcentral
      * Return cached version of the Ncentral Builder for the user
      *
      * @throws BindingResolutionException
+     * @throws \RuntimeException
      */
     public function ncentral(): Builder
     {
-        // TODO: Need to deal with null ncentral_token
+        if (is_null($this->ncentral_token)) {
+            throw new \RuntimeException('N-central token is not set. Please configure ncentral_token.');
+        }
+
         if (is_null($this->builder)) {
             $this->builder = Container::getInstance()
                 ->make(Builder::class)
