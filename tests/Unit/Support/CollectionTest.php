@@ -2,16 +2,12 @@
 
 namespace Spinen\Ncentral\Support;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-/**
- * Class CollectionTestTest
- */
 class CollectionTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(Collection::class, new Collection);

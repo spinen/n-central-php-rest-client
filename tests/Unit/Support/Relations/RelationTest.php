@@ -2,14 +2,12 @@
 
 namespace Tests\Unit\Support\Relations;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\Unit\Support\Relations\Stubs\Relation;
 
 class RelationTest extends RelationCase
 {
-    /**
-     * @var Relation
-     */
-    protected $relation;
+    protected Relation $relation;
 
     protected function setUp(): void
     {
@@ -18,41 +16,31 @@ class RelationTest extends RelationCase
         $this->relation = new Relation($this->builder_mock, $this->model_mock);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(Relation::class, $this->relation);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_builder()
     {
         $this->assertEquals($this->builder_mock, $this->relation->getBuilder());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_parent()
     {
         $this->assertEquals($this->parent_mock, $this->relation->getParent());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_related()
     {
         $this->assertEquals($this->model_mock, $this->relation->getRelated());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_passes_unknown_methods_to_the_builder()
     {
         $this->builder_mock->shouldReceive('passedMethod')
@@ -63,9 +51,7 @@ class RelationTest extends RelationCase
         $this->assertEquals('received', $this->relation->passedMethod());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_will_not_loop_proxied_calls()
     {
         $this->builder_mock->shouldReceive('returnsSelf')
@@ -76,9 +62,7 @@ class RelationTest extends RelationCase
         $this->assertEquals($this->relation, $this->relation->returnsSelf());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_allows_for_macros()
     {
         Relation::macro(

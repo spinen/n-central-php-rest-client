@@ -4,25 +4,20 @@ namespace Tests\Unit\Api;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Spinen\Ncentral\Api\Token;
 use Tests\TestCase;
 
-/**
- * Class TokenTest
- */
 class TokenTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(Token::class, new Token);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_has_expected_defaults()
     {
         CarbonImmutable::setTestNow(CarbonImmutable::now());
@@ -38,9 +33,7 @@ class TokenTest extends TestCase
         CarbonImmutable::setTestNow();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function its_string_format_is_what_is_needed_for_authentication()
     {
         $token = new Token(
@@ -51,11 +44,8 @@ class TokenTest extends TestCase
         $this->assertEquals("{$token_type} {$access_token}", (string) $token);
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider tokenExpireStates
-     */
+    #[Test]
+    #[DataProvider('tokenExpireStates')]
     public function it_uses_expires_in_to_control_several_states($token, $seconds, $expired, $valid, $refreshing, $for)
     {
         CarbonImmutable::setTestNow($now = CarbonImmutable::now());

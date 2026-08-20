@@ -2,14 +2,12 @@
 
 namespace Tests\Unit\Support\Relations;
 
+use PHPUnit\Framework\Attributes\Test;
 use Spinen\Ncentral\Support\Relations\ChildOf;
 
 class ChildOfTest extends RelationCase
 {
-    /**
-     * @var ChildOf
-     */
-    protected $relation;
+    protected ChildOf $relation;
 
     protected function setUp(): void
     {
@@ -34,17 +32,13 @@ class ChildOfTest extends RelationCase
         $this->relation = new ChildOf($this->builder_mock, $this->model_mock, 'id');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(ChildOf::class, $this->relation);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_gets_the_child_as_the_result()
     {
         $this->assertEquals($this->relation->getChild(), $this->relation->getResults());
