@@ -1,20 +1,13 @@
 # SPINEN's N-central PHP Client
 
+[![CI](https://github.com/spinen/n-central-php-rest-client/actions/workflows/ci.yml/badge.svg)](https://github.com/spinen/n-central-php-rest-client/actions/workflows/ci.yml)
 [![Latest Stable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/stable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![Latest Unstable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/unstable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![Total Downloads](https://poser.pugx.org/spinen/n-central-php-rest-client/downloads)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![License](https://poser.pugx.org/spinen/n-central-php-rest-client/license)](https://packagist.org/packages/spinen/n-central-php-rest-client)
+[![PHP Version](https://img.shields.io/packagist/php-v/spinen/n-central-php-rest-client)](https://packagist.org/packages/spinen/n-central-php-rest-client)
+[![License](https://img.shields.io/github/license/spinen/n-central-php-rest-client)](LICENSE)
 
-PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review N-central's API docs to get a feel for what this package can do, as we are just wrapping their API.  We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
+PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review N-central's API docs to get a feel for what this package can do, as we are just wrapping their API. We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
 
 We solely use [Laravel](https://www.laravel.com) for our applications, so this package is written with Laravel in mind. We have tried to make it work outside of Laravel. If there is a request from the community to split this package into 2 parts, then we will consider doing that work.
-
-## Build Status
-
-| Branch | Status | Coverage | Code Quality |
-| ------ | :----: | :------: | :----------: |
-| Develop | [![Build Status](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=develop)](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=develop) | [![Code Coverage](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=develop) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=develop) |
-| Master | [![Build Status](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=master)](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=master) |
 
 ## Table of Contents
  * [Installation](#installation)
@@ -223,12 +216,40 @@ Some of the models have relationships to other models. You can call the relation
 
 | Model | Relationship | Returns |
 |-------|--------------|---------|
-| `Customer` | `devices()` | Collection of Device |
-| `Customer` | `sites()` | Collection of Site |
-| `Customer` | `serviceOrganization()` | ServiceOrganization |
-| `Site` | `devices()` | Collection of Device |
-| `Site` | `customer()` | Customer |
-| `ServiceOrganization` | `customers()` | Collection of Customer |
+| ServiceOrganization | `customers()` | Collection of Customer |
+| ServiceOrganization | `devices()` | Collection of Device |
+| Customer | `serviceOrganization()` | ServiceOrganization |
+| Customer | `sites()` | Collection of Site |
+| Customer | `devices()` | Collection of Device |
+| Customer | `softwareInstallers()` | Collection of SoftwareInstaller |
+| Site | `customer()` | Customer |
+| Site | `devices()` | Collection of Device |
+| Device | `customer()` | Customer |
+| Device | `customProperties()` | Collection of DeviceCustomProperty |
+| Device | `notes()` | Collection of DeviceNote |
+| Device | `asset()` | DeviceAsset |
+| Device | `lifecycle()` | DeviceLifecycle |
+| Device | `maintenanceWindows()` | Collection of MaintenanceWindow |
+| Device | `serviceMonitorStatus()` | Collection of ServiceMonitorStatus |
+| Device | `remoteControl()` | RemoteControl |
+| Device | `tasks()` | Collection of DeviceTask |
+| Device | `activationKey()` | string |
+| ScheduledTask | `device()` | Device |
+| ScheduledTask | `details` | DetailedScheduledTask |
+
+**OrgUnit relationships** (inherited by ServiceOrganization, Customer, Site):
+
+| Relationship | Returns |
+|--------------|---------|
+| `customProperties()` | Collection of OrgUnitCustomProperty |
+| `activeIssues()` | Collection of ActiveIssue |
+| `jobStatuses()` | Collection of JobStatus |
+| `userRoles()` | Collection of UserRole |
+| `limits()` | Collection of OrgUnitLimit |
+| `users()` | Collection of User |
+| `accessGroups()` | Collection of AccessGroup |
+| `registrationToken()` | string |
+| `customPropertyDefaults()` | Collection |
 
 #### Collections
 
@@ -303,55 +324,38 @@ The following models are available through the builder:
 
 | Property | Model | Description |
 |----------|-------|-------------|
+| `accessGroups` | `AccessGroup` | Access groups |
+| `applianceTasks` | `ApplianceTask` | Appliance task information |
 | `customers` | `Customer` | Customer organizations |
+| `customPsaTickets` | `CustomPsaTicket` | Custom PSA tickets |
+| `detailedScheduledTasks` | `DetailedScheduledTask` | Detailed scheduled task information |
+| `deviceFilters` | `DeviceFilter` | Device filters |
 | `devices` | `Device` | Managed devices |
 | `deviceTasks` | `DeviceTask` | Tasks assigned to devices |
-| `detailedScheduledTasks` | `DetailedScheduledTask` | Detailed scheduled task information |
 | `health` | `Health` | System health status |
+| `reports` | `Report` | Reports |
 | `scheduledTasks` | `ScheduledTask` | Scheduled tasks |
 | `serverInfo` | `ServerInfo` | N-central server information |
 | `serviceOrganizations` | `ServiceOrganization` | Service organizations |
 | `sites` | `Site` | Customer sites |
+| `users` | `User` | N-central users |
 
 ## Known Issues
 
 * The N-central API is under active development and endpoints may change
+* User-Agent header contains `/` character which may cause issues with strict HTTP parsers
 
-## TODO: API Coverage Gaps
+## Known Limitations
 
-Based on the [N-central OpenAPI spec](https://nfr.n-able.com/api-explorer/openapi-spec.json), the following features are not yet implemented:
+| Location | Issue |
+|----------|-------|
+| `Client.php:68` | Token refresh validation relies on API behavior |
+| `Client.php:124` | PUT method disabled until N-central adds supporting endpoints |
+| `Token.php:9` | Token expiry buffer (5 min) may need tuning for specific environments |
+| `ScheduledTask.php:32` | Default credential values (LocalSystem) may need adjustment per use case |
 
-### High Priority
+## Not Implemented
 
-- [ ] Add `Users` model (`GET /api/users`, `GET /api/users/me`, `PATCH` user)
-- [ ] Add `DeviceCustomProperty` support (`GET/PUT /api/devices/{id}/custom-properties`)
-- [ ] Add `OrgUnitCustomProperty` support (`GET/PUT /api/org-units/{id}/custom-properties`)
-- [ ] Add registration token retrieval for customers/sites/org-units
-- [ ] Implement `select` query parameter for sparse fieldsets
-- [ ] Implement `sortBy`/`sortOrder` query parameters
+The following N-central API endpoints are not yet supported:
 
-### Medium Priority
-
-- [ ] Add `AccessGroup` model (`GET /api/access-groups`)
-- [ ] Add `DeviceNote` CRUD operations (`GET/POST/PUT/DELETE /api/devices/{id}/notes`)
-- [ ] Add `DeviceAsset` and lifecycle-info support
-- [ ] Add `MaintenanceWindow` support (`GET/POST/PUT/DELETE /api/devices/maintenance-windows`)
-- [ ] Add `ServiceMonitorStatus` endpoint (`GET /api/devices/{id}/service-monitor-status`)
-- [ ] Add `ActiveIssue` for org-units (`GET /api/org-units/{id}/active-issues`)
-- [ ] Add `JobStatus` for org-units (`GET /api/org-units/{id}/job-statuses`)
-- [ ] Add `SoftwareInstaller` support (`GET/POST /api/customers/{id}/software/installers`)
-- [ ] Add `Report` endpoints (`GET /api/report/{reportId}`)
-- [ ] Add `POST /api/device` (device creation)
-- [ ] Add `DELETE /api/devices/{id}` (device deletion)
-- [ ] Add `POST /api/customers/{id}/sites` (site creation)
-- [ ] Add `POST /api/scheduled-tasks/direct` (direct task execution)
-
-### Low Priority
-
-- [ ] Add `DeviceFilter` model (`GET /api/device-filters`)
-- [ ] Add `UserRole` model (`GET/POST /api/org-units/{id}/user-roles`)
-- [ ] Add `CustomPsaTicket` support (`/api/custom-psa/tickets`)
-- [ ] Add `StandardPsa` integration (`/api/standard-psa/*`)
-- [ ] Add `ApplianceTask` endpoint (`GET /api/appliance-tasks/{taskId}`)
-- [ ] Add `RemoteControl` endpoints (`GET/POST /api/devices/{id}/remote-control-*`)
-- [ ] Add `OrgUnitLimit` GET/PATCH (`/api/org-units/{id}/limits`)
+* `StandardPsa` integration (`/api/standard-psa/*`) - Complex multi-endpoint PSA integration

@@ -28,7 +28,7 @@ class HasClientTest extends TestCase
     {
         $this->client_mock = Mockery::mock(Ncentral::class);
 
-        $this->trait = new ItemNeedingClient();
+        $this->trait = new ItemNeedingClient;
     }
 
     /**

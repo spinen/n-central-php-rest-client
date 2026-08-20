@@ -14,6 +14,6 @@ class CollectionTest extends TestCase
      */
     public function it_can_be_constructed()
     {
-        $this->assertInstanceOf(Collection::class, new Collection());
+        $this->assertInstanceOf(Collection::class, new Collection);
     }
 }

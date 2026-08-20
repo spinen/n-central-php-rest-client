@@ -30,9 +30,9 @@ class TokenTest extends TestCase
         $token = new Token;
 
         $this->assertNull($token->access_token, 'access_token');
-        $this->assertEquals(3600, $token->expires_at->diffInSeconds(), 'expires_in');
+        $this->assertEquals(3600, abs($token->expires_at->diffInSeconds()), 'expires_in');
         $this->assertNull($token->refresh_token, 'refresh_token');
-        $this->assertEquals(90000, $token->renew_at->diffInSeconds(), 'renew_in');
+        $this->assertEquals(90000, abs($token->renew_at->diffInSeconds()), 'renew_in');
         $this->assertEquals('Bearer', $token->token_type, 'token_type');
 
         CarbonImmutable::setTestNow();

@@ -38,7 +38,7 @@ class HasNcentralTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->trait = new User();
+        $this->trait = new User;
 
         $this->client_mock = Mockery::mock(Ncentral::class);
         $this->client_mock->shouldReceive('setToken')
@@ -79,7 +79,7 @@ class HasNcentralTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_a_builder_for_HALO_method()
+    public function it_returns_a_builder_for_hal_o_method()
     {
         $this->assertInstanceOf(Builder::class, $this->trait->ncentral());
     }
