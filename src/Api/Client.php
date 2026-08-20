@@ -2,10 +2,8 @@
 
 namespace Spinen\Ncentral\Api;
 
-use Exception;
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Spinen\Ncentral\Exceptions\ApiException;
@@ -74,32 +72,6 @@ class Client
     public function getVersion()
     {
         return new Version(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'VERSION');
-    }
-
-    /**
-     * Process exception
-     *
-     * @throws ApiException
-     * @throws GuzzleException
-     * @throws RuntimeException
-     */
-    protected function processException(GuzzleException $e): void
-    {
-        if (! is_a($e, RequestException::class)) {
-            throw $e;
-        }
-
-        /** @var RequestException $e */
-        $body = $e->getResponse()->getBody()->getContents();
-
-        $results = json_decode($body, true);
-
-        throw new ApiException(
-            body: $body,
-            code: $results['status'],
-            message: $results['message'],
-            previous: $e,
-        );
     }
 
     /**
