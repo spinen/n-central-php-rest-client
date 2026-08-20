@@ -305,10 +305,13 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     /**
      * Delete the model from Ncentral
      *
+     * @throws ApiException
+     * @throws GuzzleException
      * @throws InvalidCastException
      * @throws LogicException
      * @throws MissingAttributeException
      * @throws NoClientException
+     * @throws RuntimeException
      */
     public function delete(array $query = []): bool
     {
@@ -316,16 +319,10 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             return false;
         }
 
-        try {
-            $this->getClient()
-                ->delete($this->getPath(null, $query));
+        $this->getClient()
+            ->delete($this->getPath(null, $query));
 
-            return true;
-        } catch (GuzzleException $e) {
-            // TODO: Do something with the error
-
-            return false;
-        }
+        return true;
     }
 
     /**
@@ -682,6 +679,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      * Save the model in Ncentral
      *
      * @throws ApiException
+     * @throws GuzzleException
      * @throws InvalidCastException
      * @throws LogicException
      * @throws MissingAttributeException
@@ -694,27 +692,21 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             return false;
         }
 
-        try {
-            if (! $this->isDirty()) {
-                return true;
-            }
-
-            $response = $this->getClient()
-                ->post($this->getPath(), $this->toArray());
-
-            $this->exists = true;
-
-            $this->wasRecentlyCreated = true;
-
-            // Reset the model with the results as we get back the full model
-            $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
-
+        if (! $this->isDirty()) {
             return true;
-        } catch (RuntimeException $e) {
-            // TODO: Should we do something with the error?
-
-            return false;
         }
+
+        $response = $this->getClient()
+            ->post($this->getPath(), $this->toArray());
+
+        $this->exists = true;
+
+        $this->wasRecentlyCreated = true;
+
+        // Reset the model with the results as we get back the full model
+        $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
+
+        return true;
     }
 
     /**
