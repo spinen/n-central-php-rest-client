@@ -2,6 +2,7 @@
 
 namespace Spinen\Ncentral;
 
+use Spinen\Ncentral\Support\Collection;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\HasMany;
 
@@ -9,7 +10,7 @@ use Spinen\Ncentral\Support\Relations\HasMany;
  * Class Site
  *
  * @property-read Customer $customer
- * @property-read \Spinen\Ncentral\Support\Collection $devices
+ * @property-read Collection $devices
  */
 class Site extends OrgUnit
 {
@@ -30,7 +31,7 @@ class Site extends OrgUnit
         $related = $relation->getBuilder()->getModel();
 
         // Override the path to use org-units instead of devices
-        $related->setPath('/org-units/' . $this->orgUnitId . '/devices');
+        $related->setPath('/org-units/'.$this->orgUnitId.'/devices');
         $related->parentModel = null;
 
         return $relation;

@@ -2,6 +2,7 @@
 
 namespace Spinen\Ncentral;
 
+use Spinen\Ncentral\Support\Collection;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
 use Spinen\Ncentral\Support\Relations\HasMany;
 
@@ -13,8 +14,9 @@ use Spinen\Ncentral\Support\Relations\HasMany;
  * @property bool $isServiceOrg
  * @property bool $isSystem
  * @property-read ServiceOrganization $serviceOrganization
- * @property-read \Spinen\Ncentral\Support\Collection $sites
- * @property-read \Spinen\Ncentral\Support\Collection $devices
+ * @property-read Collection $sites
+ * @property-read Collection $devices
+ * @property-read Collection|SoftwareInstaller[] $softwareInstallers
  */
 class Customer extends OrgUnit
 {
@@ -58,7 +60,7 @@ class Customer extends OrgUnit
         $related = $relation->getBuilder()->getModel();
 
         // Get children of this org unit
-        $related->setPath('/org-units/' . $this->customerId . '/children');
+        $related->setPath('/org-units/'.$this->customerId.'/children');
         $related->parentModel = null;
 
         return $relation;
@@ -73,9 +75,17 @@ class Customer extends OrgUnit
         $related = $relation->getBuilder()->getModel();
 
         // Override the path to use org-units instead of customers
-        $related->setPath('/org-units/' . $this->customerId . '/devices');
+        $related->setPath('/org-units/'.$this->customerId.'/devices');
         $related->parentModel = null;
 
         return $relation;
+    }
+
+    /**
+     * Get software installers for this customer
+     */
+    public function softwareInstallers(): HasMany
+    {
+        return $this->hasMany(SoftwareInstaller::class);
     }
 }
