@@ -8,7 +8,6 @@ use ReflectionClass;
 use Spinen\Ncentral\Api\Client as Ncentral;
 use Spinen\Ncentral\Concerns\HasClient;
 use Spinen\Ncentral\Exceptions\NoClientException;
-use Spinen\Ncentral\User;
 use Tests\TestCase;
 use Tests\Unit\Concerns\Stubs\ItemNeedingClient;
 
