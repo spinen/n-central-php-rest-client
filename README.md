@@ -1,22 +1,13 @@
-> NOTE: This is VERY early.  This is changing as N-central updates their API & as we get a better understanding of the API.  There are broken tests & some missing code, but we will firm this up over the next few weeks.
-
 # SPINEN's N-central PHP Client
 
+[![CI](https://github.com/spinen/n-central-php-rest-client/actions/workflows/ci.yml/badge.svg)](https://github.com/spinen/n-central-php-rest-client/actions/workflows/ci.yml)
 [![Latest Stable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/stable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![Latest Unstable Version](https://poser.pugx.org/spinen/n-central-php-rest-client/v/unstable)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![Total Downloads](https://poser.pugx.org/spinen/n-central-php-rest-client/downloads)](https://packagist.org/packages/spinen/n-central-php-rest-client)
-[![License](https://poser.pugx.org/spinen/n-central-php-rest-client/license)](https://packagist.org/packages/spinen/n-central-php-rest-client)
+[![PHP Version](https://img.shields.io/packagist/php-v/spinen/n-central-php-rest-client)](https://packagist.org/packages/spinen/n-central-php-rest-client)
+[![License](https://img.shields.io/github/license/spinen/n-central-php-rest-client)](LICENSE)
 
-PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review N-central's API docs to get a feel for what this package can do, as we are just wrapping their API.  We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
+PHP package to interface with [N-able's N-central Server](https://www.n-able.com/products/n-central-rmm). We strongly encourage you to review N-central's API docs to get a feel for what this package can do, as we are just wrapping their API. We have based the majority of this code from our [Halo PHP Client](https://github.com/spinen/halo-php-client).
 
 We solely use [Laravel](https://www.laravel.com) for our applications, so this package is written with Laravel in mind. We have tried to make it work outside of Laravel. If there is a request from the community to split this package into 2 parts, then we will consider doing that work.
-
-## Build Status
-
-| Branch | Status | Coverage | Code Quality |
-| ------ | :----: | :------: | :----------: |
-| Develop | [![Build Status](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=develop)](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=develop) | [![Code Coverage](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=develop) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=develop) |
-| Master | [![Build Status](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=master)](https://github.com/spinen/n-central-php-rest-client/workflows/CI/badge.svg?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/spinen/n-central-php-rest-client/?branch=master) |
 
 ## Table of Contents
  * [Installation](#installation)
@@ -142,7 +133,7 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 ### Supported Actions for `Spinen\Ncentral\Api\Client`
 
-* _[NOT YET SUPPORTED BY API]_ ~~`delete(string $path)` - Shortcut to the `request()` method with 'DELETE' as the last parameter~~
+* `delete(string $path)` - Shortcut to the `request()` method with 'DELETE' as the last parameter
 
 * `get(string $path)` - Shortcut to the `request()` method with 'GET' as the last parameter
 
@@ -156,11 +147,9 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 * `refreshToken()` - Refresh a token
 
-* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an [API call to N-central](https://ncentralservicedesk.com/apidoc/info) to `$path` with the `$data` using the JWT for the logged in user.
+* `request(?string $path, ?array $data = [], ?string $method = 'GET')` - Make an API call to N-central to `$path` with the `$data` using the JWT for the logged in user.
 
 * `requestToken()` - Request a token
-
-* `setConfigs(array $configs)` - Validate & set the configs
 
 * `setDebug(bool $debug)` - Set Guzzle to debug
 
@@ -168,7 +157,7 @@ N-central uses a JWT token for a user that is limited to only API calls.  This p
 
 * `uri(?string $path = null, ?string $url = null)` - Generate a full uri for the path to the N-central API.
 
-* `validToken()` - Is the token valid & if provided a scope, is the token approved for the scope
+* `validToken()` - Is the token valid
 
 ### Using the Client
 
@@ -203,19 +192,64 @@ The API responses are cast into models with the properties cast into the types a
 
 #### Relationships
 
-> NOTE: Not yet setup
-
-Some of the responses have links to the related resources.  If a property has a relationship, you can call it as a method and the additional calls are automatically made & returned.  The value is stored in place of the original data, so once it is loaded it is cached.
+Some of the models have relationships to other models. You can call the relationship as a method and the additional API calls are automatically made & returned.
 
 ```php
+> $customer = $builder->customers->first()
+= Spinen\Ncentral\Customer {#4967}
 
+// Get all devices for this customer
+> $customer->devices()->get()
+= Spinen\Ncentral\Support\Collection {#5001
+    all: [
+      Spinen\Ncentral\Device {#5003},
+      // more...
+    ],
+  }
+
+// Get the service organization that owns this customer
+> $customer->serviceOrganization
+= Spinen\Ncentral\ServiceOrganization {#5010}
 ```
 
-You may also call these relationships as attributes, and the Client will return a `Collection` for you (just like Eloquent).
+**Available relationships:**
 
-```php
+| Model | Relationship | Returns |
+|-------|--------------|---------|
+| ServiceOrganization | `customers()` | Collection of Customer |
+| ServiceOrganization | `devices()` | Collection of Device |
+| Customer | `serviceOrganization()` | ServiceOrganization |
+| Customer | `sites()` | Collection of Site |
+| Customer | `devices()` | Collection of Device |
+| Customer | `softwareInstallers()` | Collection of SoftwareInstaller |
+| Site | `customer()` | Customer |
+| Site | `devices()` | Collection of Device |
+| Device | `customer()` | Customer |
+| Device | `customProperties()` | Collection of DeviceCustomProperty |
+| Device | `notes()` | Collection of DeviceNote |
+| Device | `asset()` | DeviceAsset |
+| Device | `lifecycle()` | DeviceLifecycle |
+| Device | `maintenanceWindows()` | Collection of MaintenanceWindow |
+| Device | `serviceMonitorStatus()` | Collection of ServiceMonitorStatus |
+| Device | `remoteControl()` | RemoteControl |
+| Device | `tasks()` | Collection of DeviceTask |
+| Device | `activationKey()` | string |
+| ScheduledTask | `device()` | Device |
+| ScheduledTask | `details` | DetailedScheduledTask |
 
-```
+**OrgUnit relationships** (inherited by ServiceOrganization, Customer, Site):
+
+| Relationship | Returns |
+|--------------|---------|
+| `customProperties()` | Collection of OrgUnitCustomProperty |
+| `activeIssues()` | Collection of ActiveIssue |
+| `jobStatuses()` | Collection of JobStatus |
+| `userRoles()` | Collection of UserRole |
+| `limits()` | Collection of OrgUnitLimit |
+| `users()` | Collection of User |
+| `accessGroups()` | Collection of AccessGroup |
+| `registrationToken()` | string |
+| `customPropertyDefaults()` | Collection |
 
 #### Collections
 
@@ -275,7 +309,7 @@ Several of the endpoints support pagination.  You can use simple pagination by c
 > $builder->customers->count()
 = 4
 
-$builder->statuses->pluck('customerName', 'customerId')->sort()
+$builder->customers->pluck('customerName', 'customerId')->sort()
 = Spinen\Ncentral\Support\Collection {#4959
     all: [
       18 => "Customer A",
@@ -284,12 +318,44 @@ $builder->statuses->pluck('customerName', 'customerId')->sort()
   }
 ```
 
-## Open Items
+## Available Models
 
-* Setup the relationships in the models
-* Add getters to models
-* Add scopes on models
+The following models are available through the builder:
+
+| Property | Model | Description |
+|----------|-------|-------------|
+| `accessGroups` | `AccessGroup` | Access groups |
+| `applianceTasks` | `ApplianceTask` | Appliance task information |
+| `customers` | `Customer` | Customer organizations |
+| `customPsaTickets` | `CustomPsaTicket` | Custom PSA tickets |
+| `detailedScheduledTasks` | `DetailedScheduledTask` | Detailed scheduled task information |
+| `deviceFilters` | `DeviceFilter` | Device filters |
+| `devices` | `Device` | Managed devices |
+| `deviceTasks` | `DeviceTask` | Tasks assigned to devices |
+| `health` | `Health` | System health status |
+| `reports` | `Report` | Reports |
+| `scheduledTasks` | `ScheduledTask` | Scheduled tasks |
+| `serverInfo` | `ServerInfo` | N-central server information |
+| `serviceOrganizations` | `ServiceOrganization` | Service organizations |
+| `sites` | `Site` | Customer sites |
+| `users` | `User` | N-central users |
 
 ## Known Issues
 
-* They are refining the API, so things may break
+* The N-central API is under active development and endpoints may change
+* User-Agent header contains `/` character which may cause issues with strict HTTP parsers
+
+## Known Limitations
+
+| Location | Issue |
+|----------|-------|
+| `Client.php:68` | Token refresh validation relies on API behavior |
+| `Client.php:124` | PUT method disabled until N-central adds supporting endpoints |
+| `Token.php:9` | Token expiry buffer (5 min) may need tuning for specific environments |
+| `ScheduledTask.php:32` | Default credential values (LocalSystem) may need adjustment per use case |
+
+## Not Implemented
+
+The following N-central API endpoints are not yet supported:
+
+* `StandardPsa` integration (`/api/standard-psa/*`) - Complex multi-endpoint PSA integration

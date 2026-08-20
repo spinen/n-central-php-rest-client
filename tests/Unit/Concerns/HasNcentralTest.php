@@ -5,7 +5,7 @@ namespace Tests\Unit\Concerns;
 use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Crypt;
 use Mockery;
-use Mockery\Mock;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use Spinen\Ncentral\Api\Client as Ncentral;
 use Spinen\Ncentral\Api\Token;
@@ -16,29 +16,17 @@ use Tests\Unit\Concerns\Stubs\User;
 
 class HasNcentralTest extends TestCase
 {
-    /**
-     * @var Mock
-     */
     protected $builder_mock;
 
-    /**
-     * @var Mock
-     */
     protected $client_mock;
 
-    /**
-     * @var Mock
-     */
     protected $encrypter_mock;
 
-    /**
-     * @var User
-     */
     protected $trait;
 
     protected function setUp(): void
     {
-        $this->trait = new User();
+        $this->trait = new User;
 
         $this->client_mock = Mockery::mock(Ncentral::class);
         $this->client_mock->shouldReceive('setToken')
@@ -68,25 +56,19 @@ class HasNcentralTest extends TestCase
             ->instance(Ncentral::class, $this->client_mock);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_used()
     {
         $this->assertArrayHasKey(HasNcentral::class, (new ReflectionClass($this->trait))->getTraits());
     }
 
-    /**
-     * @test
-     */
-    public function it_returns_a_builder_for_HALO_method()
+    #[Test]
+    public function it_returns_a_builder_for_ncentral_method()
     {
         $this->assertInstanceOf(Builder::class, $this->trait->ncentral());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_caches_the_builder()
     {
         $this->assertNull($this->trait->getBuilder(), 'baseline');
@@ -96,9 +78,7 @@ class HasNcentralTest extends TestCase
         $this->assertInstanceOf(Builder::class, $this->trait->getBuilder());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_initializes_the_trait_as_expected()
     {
         $this->assertEmpty($this->trait->fillable, 'Baseline fillable');
@@ -111,17 +91,13 @@ class HasNcentralTest extends TestCase
         $this->assertContains('ncentral_token', $this->trait->hidden, 'Hide ncentral_token');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_has_an_accessor_to_get_the_client()
     {
         $this->assertInstanceOf(Ncentral::class, $this->trait->getNcentralAttribute());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_has_an_accessor_to_decrypt_ncentral_token()
     {
         Crypt::shouldReceive('decryptString')
@@ -132,9 +108,7 @@ class HasNcentralTest extends TestCase
         ($this->trait->ncentralToken()->get)(value: null, attributes: ['ncentral_token' => $this->trait->attributes['ncentral_token']]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_try_to_decrypt_null_ncentral_token()
     {
         $this->trait->attributes['ncentral_token'] = null;
@@ -146,9 +120,7 @@ class HasNcentralTest extends TestCase
         $this->assertNull(($this->trait->ncentralToken()->get)(value: null, attributes: ['ncentral_token' => $this->trait->attributes['ncentral_token']]));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_has_mutator_to_encrypt_ncentral_token()
     {
         Crypt::shouldReceive('encryptString')
@@ -161,9 +133,7 @@ class HasNcentralTest extends TestCase
         $this->assertEquals('encrypted', $this->trait->attributes['ncentral_token']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_mutate_a_null_ncentral_token()
     {
         Crypt::shouldReceive('encryptString')
@@ -173,9 +143,7 @@ class HasNcentralTest extends TestCase
         $this->assertNull(($this->trait->ncentralToken()->set)(null));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_invalidates_builder_cache_when_setting_ncentral_token()
     {
         Crypt::shouldReceive('encryptString')

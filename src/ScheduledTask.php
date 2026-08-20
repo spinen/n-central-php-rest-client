@@ -5,6 +5,7 @@ namespace Spinen\Ncentral;
 use Spinen\Ncentral\Exceptions\NoClientException;
 use Spinen\Ncentral\Support\Builder;
 use Spinen\Ncentral\Support\Model;
+use Spinen\Ncentral\Support\Relations\BelongsTo;
 
 /**
  * Class ScheduledTask
@@ -20,6 +21,7 @@ use Spinen\Ncentral\Support\Model;
  * @property ?string $name
  * @property ?string $type
  * @property int $taskId
+ * @property-read Device $device
  */
 class ScheduledTask extends Model
 {
@@ -71,7 +73,7 @@ class ScheduledTask extends Model
      */
     public function getDetailsAttribute(): DetailedScheduledTask
     {
-        return (new Builder())->setClient($this->getClient())
+        return (new Builder)->setClient($this->getClient())
             ->detailedScheduledTasks()
             ->find($this->taskId);
     }
@@ -92,5 +94,13 @@ class ScheduledTask extends Model
     {
         // Toggle readonly for existing as you cannot update
         return $this->exists;
+    }
+
+    /**
+     * Get the device this task is associated with
+     */
+    public function device(): BelongsTo
+    {
+        return $this->belongsTo(Device::class, 'deviceId');
     }
 }

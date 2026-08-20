@@ -25,6 +25,6 @@ abstract class ModelCase extends TestCase
 
         $class = preg_replace('/(.*)Test$/u', '$1', get_class($this));
 
-        $this->model = (new $class())->setClient($this->client_mock);
+        $this->model = (new $class)->setClient($this->client_mock);
     }
 }

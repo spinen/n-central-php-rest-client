@@ -2,7 +2,9 @@
 
 namespace Spinen\Ncentral;
 
+use Spinen\Ncentral\Support\Collection;
 use Spinen\Ncentral\Support\Model;
+use Spinen\Ncentral\Support\Relations\HasMany;
 
 /**
  * Abstract Class OrgUnit
@@ -31,6 +33,13 @@ use Spinen\Ncentral\Support\Model;
  * @property ?string $stateProv
  * @property ?string $street1
  * @property ?string $street2
+ * @property-read Collection|OrgUnitCustomProperty[] $customProperties
+ * @property-read Collection|ActiveIssue[] $activeIssues
+ * @property-read Collection|JobStatus[] $jobStatuses
+ * @property-read Collection|UserRole[] $userRoles
+ * @property-read Collection|OrgUnitLimit[] $limits
+ * @property-read Collection|User[] $users
+ * @property-read Collection|AccessGroup[] $accessGroups
  */
 abstract class OrgUnit extends Model
 {
@@ -58,4 +67,85 @@ abstract class OrgUnit extends Model
      * Is the model readonly?
      */
     protected bool $readonlyModel = true;
+
+    /**
+     * Get the custom properties for this org unit
+     */
+    public function customProperties(): HasMany
+    {
+        return $this->hasMany(OrgUnitCustomProperty::class);
+    }
+
+    /**
+     * Get the registration token for this org unit
+     *
+     * @return string|null The registration token
+     */
+    public function registrationToken(): ?string
+    {
+        $response = $this->getClient()->request(
+            $this->getPath('/registration-token')
+        );
+
+        return $response['registrationToken'] ?? null;
+    }
+
+    /**
+     * Get the active issues for this org unit
+     */
+    public function activeIssues(): HasMany
+    {
+        return $this->hasMany(ActiveIssue::class);
+    }
+
+    /**
+     * Get the job statuses for this org unit
+     */
+    public function jobStatuses(): HasMany
+    {
+        return $this->hasMany(JobStatus::class);
+    }
+
+    /**
+     * Get the user roles for this org unit
+     */
+    public function userRoles(): HasMany
+    {
+        return $this->hasMany(UserRole::class);
+    }
+
+    /**
+     * Get the limits for this org unit
+     */
+    public function limits(): HasMany
+    {
+        return $this->hasMany(OrgUnitLimit::class);
+    }
+
+    /**
+     * Get the custom property defaults for this org unit
+     */
+    public function customPropertyDefaults(): Collection
+    {
+        $response = $this->getClient()
+            ->get($this->path.'/'.$this->getKey().'/org-custom-property-defaults');
+
+        return new Collection($response['data'] ?? []);
+    }
+
+    /**
+     * Get the users for this org unit
+     */
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get the access groups for this org unit
+     */
+    public function accessGroups(): HasMany
+    {
+        return $this->hasMany(AccessGroup::class);
+    }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Support\Relations;
 
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Spinen\Ncentral\Support\Builder;
 use Spinen\Ncentral\Support\Collection;
 use Spinen\Ncentral\Support\Relations\BelongsTo;
@@ -10,10 +11,7 @@ use Tests\Unit\Support\Stubs\Model;
 
 class BelongsToTest extends RelationCase
 {
-    /**
-     * @var BelongsTo
-     */
-    protected $relation;
+    protected BelongsTo $relation;
 
     protected function setUp(): void
     {
@@ -38,41 +36,31 @@ class BelongsToTest extends RelationCase
         $this->relation = new BelongsTo($this->builder_mock, $this->model_mock, 'id');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(BelongsTo::class, $this->relation);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_child()
     {
         $this->assertEquals($this->model_mock, $this->relation->getChild());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_value_of_the_foregin_key()
     {
         $this->assertEquals(1, $this->relation->getForeignKey());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_get_the_name_of_the_foreign_key()
     {
         $this->assertEquals('id', $this->relation->getForeignKeyName());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_gets_the_first_value_from_the_results_of_the_builder()
     {
         $results = [
@@ -92,9 +80,7 @@ class BelongsToTest extends RelationCase
         $this->assertEquals('first', $results->name, 'Correct one');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_returns_null_if_foreign_key_is_null()
     {
         $builder_mock = Mockery::mock(Builder::class);

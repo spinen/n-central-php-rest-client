@@ -2,15 +2,13 @@
 
 namespace Tests\Unit\Support\Relations;
 
+use PHPUnit\Framework\Attributes\Test;
 use Spinen\Ncentral\Support\Collection;
 use Spinen\Ncentral\Support\Relations\HasMany;
 
 class HasManyTest extends RelationCase
 {
-    /**
-     * @var HasMany
-     */
-    protected $relation;
+    protected HasMany $relation;
 
     protected function setUp(): void
     {
@@ -19,17 +17,13 @@ class HasManyTest extends RelationCase
         $this->relation = new HasMany($this->builder_mock, $this->model_mock);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(HasMany::class, $this->relation);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_gets_the_child_as_the_result()
     {
         $results = new Collection([]);

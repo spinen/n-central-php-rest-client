@@ -61,7 +61,7 @@ class ClientServiceProvider extends LaravelServiceProvider implements Deferrable
     {
         $this->app->bind(
             abstract: Builder::class,
-            concrete: fn (Application $app): Builder => (new Builder())->setClient($app->make(Ncentral::class))
+            concrete: fn (Application $app): Builder => (new Builder)->setClient($app->make(Ncentral::class))
         );
 
         $this->app->bind(

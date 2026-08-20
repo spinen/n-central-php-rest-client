@@ -10,28 +10,23 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Spinen\Ncentral\Api\Client;
 use Spinen\Ncentral\Api\Token;
 use Spinen\Ncentral\Exceptions\ClientConfigurationException;
 use Tests\TestCase;
 use TypeError;
 
-/**
- * Class ClientTest
- */
 class ClientTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_be_constructed()
     {
         $this->assertInstanceOf(Client::class, new Client($this->configs));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_expects_the_configs_argument_to_be_an_array()
     {
         $this->expectException(TypeError::class);
@@ -39,9 +34,7 @@ class ClientTest extends TestCase
         new Client(configs: '');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_raises_exception_without_an_url()
     {
         $this->expectException(ClientConfigurationException::class);
@@ -51,9 +44,7 @@ class ClientTest extends TestCase
         new Client($this->configs);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_raises_exception_when_url_is_not_a_valid_url()
     {
         $this->expectException(ClientConfigurationException::class);
@@ -63,9 +54,7 @@ class ClientTest extends TestCase
         new Client($this->configs);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_expects_the_guzzle_argument_to_be_a_guzzle_if_provided()
     {
         $this->expectException(TypeError::class);
@@ -73,9 +62,7 @@ class ClientTest extends TestCase
         new Client(configs: $this->configs, guzzle: '');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_expects_the_token_argument_to_be_a_token_if_provided()
     {
         $this->expectException(TypeError::class);
@@ -83,9 +70,7 @@ class ClientTest extends TestCase
         new Client(configs: $this->configs, token: '');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_allows_setting_the_token_as_a_token()
     {
         $token = new Token(access_token: $access_token = Str::random());
@@ -96,9 +81,7 @@ class ClientTest extends TestCase
         $this->assertEquals($access_token, $client->getToken()->access_token);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_allows_setting_the_token_as_a_string()
     {
         $client = (new Client($this->configs))
@@ -107,9 +90,7 @@ class ClientTest extends TestCase
         $this->assertEquals($access_token, $client->getToken()->access_token);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_builds_correct_uri()
     {
         $client = new Client($this->configs);
@@ -130,9 +111,7 @@ class ClientTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_raises_exception_when_guzzle_error()
     {
         $this->expectException(GuzzleException::class);
@@ -152,11 +131,8 @@ class ClientTest extends TestCase
             ->request($path);
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider tokenProvider
-     */
+    #[Test]
+    #[DataProvider('tokenProvider')]
     public function it_knows_if_a_token_is_valid($valid, $token = null)
     {
         $client = new Client($this->configs);
@@ -194,9 +170,7 @@ class ClientTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_gets_cached_token_if_existing_token_valid()
     {
         $client = (new Client($this->configs))

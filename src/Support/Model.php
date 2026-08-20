@@ -3,7 +3,6 @@
 namespace Spinen\Ncentral\Support;
 
 use ArrayAccess;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Database\Eloquent\Concerns\HasAttributes;
@@ -198,7 +197,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     public function __set($key, $value)
     {
         if ($this->getReadonlyModel()) {
-            throw new ModelReadonlyException();
+            throw new ModelReadonlyException;
         }
 
         $this->setAttribute($key, $value);
@@ -246,7 +245,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     protected function assumeForeignKey($related): string
     {
-        return Str::snake(new $related()).'Id';
+        return Str::snake(new $related).'Id';
     }
 
     /**
@@ -263,7 +262,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     {
         $foreignKey = $foreignKey ?? $this->assumeForeignKey($related);
 
-        $builder = (new Builder())->setClass($related)
+        $builder = (new Builder)->setClass($related)
             ->setClient($this->getClient());
 
         return new BelongsTo($builder, $this, $foreignKey);
@@ -283,7 +282,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     {
         $foreignKey = $foreignKey ?? $this->assumeForeignKey($related);
 
-        $builder = (new Builder())->setClass($related)
+        $builder = (new Builder)->setClass($related)
             ->setClient($this->getClient())
             ->setParent($this);
 
@@ -316,16 +315,10 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             return false;
         }
 
-        try {
-            $this->getClient()
-                ->delete($this->getPath(null, $query));
+        $this->getClient()
+            ->delete($this->getPath(null, $query));
 
-            return true;
-        } catch (GuzzleException $e) {
-            // TODO: Do something with the error
-
-            return false;
-        }
+        return true;
     }
 
     /**
@@ -497,7 +490,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      *
      * @param  string  $related
      * @param  array  $given
-     * @param  bool  $reset Some of the values are nested under a property, so peel it off
+     * @param  bool  $reset  Some of the values are nested under a property, so peel it off
      *
      * @throws NoClientException
      */
@@ -518,7 +511,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      *
      * @param  string  $related
      * @param  array  $attributes
-     * @param  bool  $reset Some of the values are nested under a property, so peel it off
+     * @param  bool  $reset  Some of the values are nested under a property, so peel it off
      *
      * @throws NoClientException
      */
@@ -539,7 +532,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
      */
     public function hasMany($related): HasMany
     {
-        $builder = (new Builder())->setClass($related)
+        $builder = (new Builder)->setClass($related)
             ->setClient($this->getClient())
             ->setParent($this);
 
@@ -620,7 +613,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     public function offsetSet($offset, $value): void
     {
         if ($this->getReadonlyModel()) {
-            throw new ModelReadonlyException();
+            throw new ModelReadonlyException;
         }
 
         $this->setAttribute($offset, $value);
@@ -694,27 +687,21 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
             return false;
         }
 
-        try {
-            if (! $this->isDirty()) {
-                return true;
-            }
-
-            $response = $this->getClient()
-                ->post($this->getPath(), $this->toArray());
-
-            $this->exists = true;
-
-            $this->wasRecentlyCreated = true;
-
-            // Reset the model with the results as we get back the full model
-            $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
-
+        if (! $this->isDirty()) {
             return true;
-        } catch (RuntimeException $e) {
-            // TODO: Should we do something with the error?
-
-            return false;
         }
+
+        $response = $this->getClient()
+            ->post($this->getPath(), $this->toArray());
+
+        $this->exists = true;
+
+        $this->wasRecentlyCreated = true;
+
+        // Reset the model with the results as we get back the full model
+        $this->setRawAttributes($this->peelWrapperPropertyIfNeeded($response), true);
+
+        return true;
     }
 
     /**
@@ -731,7 +718,7 @@ abstract class Model implements Arrayable, ArrayAccess, Jsonable, JsonSerializab
     public function saveOrFail(): bool
     {
         if (! $this->save()) {
-            throw new UnableToSaveException();
+            throw new UnableToSaveException;
         }
 
         return true;

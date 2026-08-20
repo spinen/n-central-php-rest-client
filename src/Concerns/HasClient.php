@@ -29,7 +29,7 @@ trait HasClient
             return $this->client;
         }
 
-        throw new NoClientException();
+        throw new NoClientException;
     }
 
     /**
