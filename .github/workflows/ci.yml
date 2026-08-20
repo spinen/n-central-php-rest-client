@@ -5,89 +5,85 @@ on:
   pull_request:
 
 jobs:
-  # Run lowest tests first as a batch
-  tests-lowest:
+  code-style:
     runs-on: ubuntu-latest
-    continue-on-error: true
+    name: Code Style
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run Pint
+        run: vendor/bin/pint --test
+
+  tests:
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        php: [8.3, 8.4, 8.5]
+        php: ['8.3', '8.4']
+        laravel: ['11.*', '12.*', '13.*']
+        stability: [prefer-lowest, prefer-stable]
+        exclude:
+          - php: '8.3'
+            laravel: '13.*'
 
-    name: PHP ${{ matrix.php }} - prefer-lowest
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          # Fetch 10 commits or Scrutinizer will throw ("Failed to retrieve commit parents. If you use a shallow git checkout, please checkout at least a depth of one."), see: RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
-          # 10 commits is an arbitrary value that is more than 1 commit
-          fetch-depth: 10
 
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache
-          key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+          key: dependencies-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ matrix.stability }}-${{ hashFiles('composer.json') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: mbstring, json
           coverage: pcov
+          tools: composer:v2
 
       - name: Install dependencies
-        run: composer update --prefer-lowest --prefer-dist --no-interaction
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover=coverage.clover
+        run: vendor/bin/phpunit
 
-      - name: Upload Code Coverage
-        continue-on-error: true
-        run: vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover || true
+      # TODO: Add coverage reporting (Codecov requires subscription)
 
-  # Run stable tests after lowest tests complete
-  tests-stable:
+  security:
     runs-on: ubuntu-latest
-    needs: tests-lowest
-
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [8.3, 8.4, 8.5]
-
-    name: PHP ${{ matrix.php }} - prefer-stable
+    name: Security Check
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          # Fetch 10 commits or Scrutinizer will throw ("Failed to retrieve commit parents. If you use a shallow git checkout, please checkout at least a depth of one."), see: RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
-          # 10 commits is an arbitrary value that is more than 1 commit
-          fetch-depth: 10
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache
-          key: dependencies-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
-          coverage: pcov
+          php-version: 8.4
+          tools: composer:v2
 
       - name: Install dependencies
-        run: composer update --prefer-stable --prefer-dist --no-interaction
+        run: composer install --prefer-dist --no-interaction
 
-      - name: PHP Security Checker
+      - name: Security Check
         uses: symfonycorp/security-checker-action@v5
-
-      - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover=coverage.clover
-
-      - name: Upload Code Coverage
-        continue-on-error: true
-        run: vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover || true
